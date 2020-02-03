@@ -2,7 +2,6 @@ import argparse
 import numpy as np
 
 from flowprint import FlowPrint
-from loader import Loader
 from preprocessor import Preprocessor
 
 if __name__ == "__main__":
@@ -73,11 +72,11 @@ Data input:
 
     # Initialise flows and labels
     X, y = list(), list()
+    # Initialise preprocessor
+    preprocessor = Preprocessor(verbose=True)
 
     # Parse files - if necessary
     if args.files:
-        # Initialise preprocessor
-        preprocessor = Preprocessor(verbose=True)
         # Process data
         X_, y_ = preprocessor.process(args.files, args.files)
         # Add data to datapoints
@@ -86,12 +85,10 @@ Data input:
 
     # Load preprocessed data - if necessary
     if args.read:
-        # Initialise loader
-        loader = Loader()
         # Loop over all preprocessed files
         for infile in args.read:
             # Load each file
-            X_, y_ = loader.load_file(infile)
+            X_, y_ = preprocessor.load(infile)
             # Add input file to data
             X.append(X_)
             y.append(y_)
@@ -102,8 +99,6 @@ Data input:
 
     # Write preprocessed data - if necessary
     if args.write:
-        # Initialise preprocessor
-        preprocessor = Preprocessor(verbose=True)
         # Save data
         preprocessor.save(args.write, X, y)
 
@@ -112,3 +107,14 @@ Data input:
     ########################################################################
 
     # TODO
+    print(X.shape)
+    print(y.shape)
+    exit()
+
+    # Create FlowPrint instance
+    flowprint = FlowPrint()
+    # Fit fingerprints
+    flowprint.fit(X, y)
+    # Print all fingerprints
+    for fp, label in flowprint.fingerprints.items():
+        print(fp, label)
