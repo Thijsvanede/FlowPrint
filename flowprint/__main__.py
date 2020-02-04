@@ -15,29 +15,41 @@ if __name__ == "__main__":
                 description="Flowprint: Semi-Supervised Mobile-App\nFingerprinting on Encrypted Network Traffic",
                 formatter_class=argparse.RawTextHelpFormatter)
 
+    # Output arguments
+    group_output = parser.add_mutually_exclusive_group(required=False)
+    group_output.add_argument('--fingerprint', action='store_true', help="run FlowPrint in raw fingerprint generation mode (default)")
+    group_output.add_argument('--detection'  , action='store_true', help="run FlowPrint in unseen app detection mode")
+    group_output.add_argument('--recognition', action='store_true', help="run FlowPrint in app recognition mode")
+
     # FlowPrint parameters
-    group_flowprint = parser.add_argument_group("FlowPrint Parameters")
+    group_flowprint = parser.add_argument_group("FlowPrint parameters")
     group_flowprint.add_argument('-b', '--batch'      , type=float, default=300, help="batch size in seconds       (default=300)")
     group_flowprint.add_argument('-c', '--correlation', type=float, default=0.1, help="cross-correlation threshold (default=0.1)")
     group_flowprint.add_argument('-s', '--similarity' , type=float, default=0.9, help="similarity threshold        (default=0.9)")
     group_flowprint.add_argument('-w', '--window'     , type=float, default=30 , help="window size in seconds      (default=30)")
 
     # Data agruments
-    group_data = parser.add_argument_group("Data input")
-    group_data.add_argument('-f', '--files', nargs='+', help="path to pcap(ng) files to run through FlowPrint")
-    group_data.add_argument('-r', '--read' , nargs='+', help="read preprocessed data from given files")
-    group_data.add_argument('-t', '--write',            help="write preprocessed data to given file")
+    group_data_in = parser.add_argument_group("Data input")
+    group_data_in.add_argument('-p', '--pcaps', nargs='+', help="path to pcap(ng) files to run through FlowPrint")
+    group_data_in.add_argument('-r', '--read' , nargs='+', help="read preprocessed data from given files")
+    group_data_in.add_argument('-t', '--write',            help="write preprocessed data to given file")
 
     # Set help message
     parser.format_help = lambda: \
 """usage: {} [-h]
+                    (--detection | --fingerprint | --recognition)
                     [-b BATCH] [-c CORRELATION], [-s SIMILARITY], [-w WINDOW]
-                    [-f FILES...] [-r READ...] [-t WRITE]
+                    [-p PCAPS...] [-rp READ...] [-wp WRITE]
 
 {}
 
 Arguments:
   -h, --help                 show this help message and exit
+
+FlowPrint mode (select up to one):
+  --fingerprint              run in raw fingerprint generation mode (default)
+  --detection                run in unseen app detection mode
+  --recognition              run in app recognition mode
 
 FlowPrint parameters:
   -b, --batch       FLOAT    batch size in seconds       (default=300)
@@ -45,12 +57,12 @@ FlowPrint parameters:
   -s, --similarity  FLOAT    similarity threshold        (default=0.9)
   -w, --window      FLOAT    window size in seconds      (default=30)
 
-Data input:
-  FlowPrint requires at least one data source: --files or --read.
-  -f, --files [PATH...]      path to pcap(ng) files to run through FlowPrint
-  -r, --read  [PATH...]      read preprocessed data from given files
-  -t, --write [PATH]         write preprocessed data to given file
- """.format(
+Data input (either --files or --read required):
+  -p, --pcaps PATHS...       path to pcap(ng) files to run through FlowPrint
+  -r, --read  PATHS...       read preprocessed data from given files
+  -t, --write PATH           write preprocessed data to given file
+
+""".format(
     # Usage Parameters
     parser.prog,
     # Description
@@ -64,7 +76,7 @@ Data input:
     ########################################################################
 
     # Check if any input is given
-    if not args.files and not args.read:
+    if not args.pcaps and not args.read:
         # Give help message
         print(parser.format_help())
         # Throw exception
@@ -76,9 +88,9 @@ Data input:
     preprocessor = Preprocessor(verbose=True)
 
     # Parse files - if necessary
-    if args.files:
+    if args.pcaps:
         # Process data
-        X_, y_ = preprocessor.process(args.files, args.files)
+        X_, y_ = preprocessor.process(args.pcaps, args.pcaps)
         # Add data to datapoints
         X.append(X_)
         y.append(y_)
@@ -106,15 +118,30 @@ Data input:
     #                            Run FlowPrint                             #
     ########################################################################
 
-    # TODO
-    print(X.shape)
-    print(y.shape)
-    exit()
-
     # Create FlowPrint instance
     flowprint = FlowPrint()
     # Fit fingerprints
     flowprint.fit(X, y)
-    # Print all fingerprints
-    for fp, label in flowprint.fingerprints.items():
-        print(fp, label)
+
+    # Run FlowPrint in given mode
+
+    if args.detection:
+        raise ValueError("Mode not implemented yet: Detection")
+
+    elif args.recognition:
+        raise ValueError("Mode not implemented yet: Recognition")
+
+    else:
+        # Make dictionary of label -> fingerprints
+        fingerprints = dict()
+        # Fill fingerprints
+        for fingerprint, label in flowprint.fingerprints.items():
+            # Add fingerprints
+            fingerprints[label] = fingerprints.get(label, []) + [fingerprint]
+
+        # Output fingerprints
+        for label, fingerprint in fingerprints.items():
+            print("{}:".format(label))
+            for fp in fingerprint:
+                print("    {}".format(fp))
+            print()
