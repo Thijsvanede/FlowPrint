@@ -8,9 +8,6 @@ import numpy as np
 class Fingerprints(object):
 
     def __init__(self, batch=300, window=30, correlation=0.1, similarity=0.9):
-        # Initialise fingerprints
-        self.fingerprints = list()
-
         # Set FlowPrint parameters
         self.batch       = batch
         self.window      = window
@@ -42,9 +39,6 @@ class Fingerprints(object):
         #                        Setup fingerprints                        #
         ####################################################################
 
-        # Empty fingerprints
-        self.fingerprints = list()
-
         # Transform to arrays
         X = np.asarray(X)
         y = np.asarray(y) if y is not None else np.zeros(X.shape[0], dtype=int)
@@ -66,7 +60,9 @@ class Fingerprints(object):
         sort_batch = np.array([x.time_start() for x in X])
         # Compute number of required batches
         if sort_batch.shape[0]:
-            batches = int(np.ceil((max(sort_batch) - min(sort_batch)) / self.batch))
+            batches = int(
+                np.ceil((max(sort_batch) - min(sort_batch)) / self.batch)
+            )
         else:
             batches = 0
         # Get edges of batches
@@ -144,31 +140,33 @@ class Fingerprints(object):
         #                   Assign fingerprints per flow                   #
         ####################################################################
 
-        # TODO
+        # Get network destination per flow
+        destinations = cluster.predict(X)     # Get destination id per flow
+        translation  = cluster.cluster_dict() # Get destinations for each id
+        destinations = [translation.get(d) for d in destinations]
 
-        # Predict cluster
-        pred = cluster.predict(X)
-        translation = cluster.cluster_dict()
-        pred = [translation.get(p) for p in pred]
+        # Get fingerprint per network destination
+        mapping_fingerprints = dict()
+        # Map destination to largest fingerprint by (#destinations, #flows)
+        for fingerprint in sorted(
+                fingerprints,
+                key=lambda x: (len(x), sum(len(c.samples) for c in x))
+            ):
+            for destination in fingerprint:
+                mapping_fingerprints[destination] = fingerprint
+        # Apply mapping
+        prediction = np.array([
+            mapping_fingerprints.get(d, Fingerprint()) for d in destinations
+        ])
 
-        # Assign each prediction to a fingerprint
-        table = dict()
-        for p in np.unique(pred):
-            entry = [fp for fp in fingerprints if p in fp]
-            if not entry:
-                table[p] = Fingerprint()
-            else:
-                table[p] = max(entry, key=lambda x: len(x))
+        ####################################################################
+        #             Handle unknown and similar fingerprints              #
+        ####################################################################
 
-        # Get results
-        prediction = np.array([table.get(p) for p in pred])
         # For unknown results assign nearest neighbour
         prediction = self.assign_nearest(X, prediction)
         # Merge similar fingerprints
         prediction = self.merge_fingerprints(prediction, self.similarity)
-
-        # Append fingerprints to histsory of fingerprints
-        self.fingerprints.append(fingerprints)
 
         # Return prediction
         return prediction
@@ -186,57 +184,64 @@ class Fingerprints(object):
                 Array of original flows.
 
             y : np.array of shape=(n_flows,) and dtype=int
-                Array of original labels. Unlabeled items should have label -1.
+                Array of fingerprints.
 
             Returns
             -------
             result : np.array of shape=(n_flows,) and dtype=int
-                Array of new labels. Without any -1 labels.
+                Array of Fingerprints. Without any -1 labels.
             """
-        # Get sortings
+        ####################################################################
+        #             Sort flows and fingerprints by timestamp             #
+        ####################################################################
+
+        # Sort flows by time
         sort_time = np.argsort(X)
         sort_orig = np.argsort(sort_time)
 
         # Sort by time
         X = X[sort_time]
         y = y[sort_time]
+        # Get timestamps
+        timestamps = np.asarray([x.time_start() for x in X])
 
-        # Get blocks of unassigned labels
+        ####################################################################
+        #               Assign closest fingerprints in time                #
+        ####################################################################
+
+        # Get blocks of unassigned fingerprint indices
         blocks = list()
         block  = list()
         for i, fingerprint in enumerate(y):
             if fingerprint and block:
-                blocks.append(block)
+                blocks.append(np.asarray(block))
                 block = list()
             elif not fingerprint:
                 block.append(i)
         if block:
-            blocks.append(block)
+            blocks.append(np.asarray(block))
 
-        # For each block compute new labels
+        # For each block of unassigned fingerprints compute new labels
         for block in blocks:
-            # Get left and right index of block
-            left  = min(block) - 1
-            right = max(block) + 1
+            # Get indices before and after block
+            before = min(block) - 1
+            after  = max(block) + 1
+            # Get timestamps before and after block
+            ts_before = X[before].time_start() if before >= 0          else float('inf')
+            ts_after  = X[after ].time_start() if after  <  X.shape[0] else float('inf')
+            # Get fingerprints before and after block
+            fp_before = y[before] if before >= 0          else Fingerprint()
+            fp_after  = y[after ] if after  <  X.shape[0] else Fingerprint()
 
-            # Get left and right times + labels
-            left_t  = X[left ].time_start() if left >= 0 else float('inf')
-            left_y  = y[left ]              if left >= 0 else Fingerprint()
-            right_t = X[right].time_start() if right < X.shape[0] else float('inf')
-            right_y = y[right]              if right < X.shape[0] else Fingerprint()
+            # Assign new fingerprints per block
+            block_before = abs(timestamps[block] - ts_before) <\
+                           abs(timestamps[block] - ts_after )
+            y[block[ block_before]] = fp_before
+            y[block[~block_before]] = fp_after
 
-            # Assign new labels per block
-            for i in block:
-                if abs(X[i].time_start()-left_t) < abs(X[i].time_start()-right_t):
-                    y[i] = left_y
-                else:
-                    y[i] = right_y
+        # Return fingerprints in original order
+        return y[sort_orig]
 
-        # Sort back to original
-        y = y[sort_orig]
-
-        # Return result
-        return y
 
     def merge_fingerprints(self, fingerprints, threshold=1):
         """Merge fingerprints based on similarity.
@@ -251,53 +256,52 @@ class Fingerprints(object):
             result : list
                 Merged fingerprints
             """
-        # Initialise result
-        result = np.zeros(fingerprints.shape[0], dtype=fingerprints.dtype)
+        ####################################################################
+        #           Case default: all fingerprints are different           #
+        ####################################################################
+        result = np.asarray(fingerprints)
 
         # Retrieve unique fingerprints
         unique = set(fingerprints)
 
-        # If threshold is 0 everything is equal
-        if threshold == 0:
-            # Create empty fingerprint
-            fingerprint = Fingerprint()
-            # Merge all fingerprints
-            for fp in unique:
-                fingerprint = fingerprint.merge(fp)
-            # Set result to big fingerprint
-            result = np.array([fingerprint for fp in fingerprints])
+        ####################################################################
+        #                Case 1: all fingerprints are equal                #
+        ####################################################################
+        if threshold <= 0:
+            # Create one big merged fingerprint out of all unique fingerprints
+            result[:] = Fingerprint(set().union(*unique))
 
-        # Check if partial matches should be merged, i.e. 0 < threshold < 1
+        ####################################################################
+        #         Case 2: Merge fingerprints by 0 < threshold < 1          #
+        ####################################################################
         elif threshold < 1:
             # Initialise fingerprinting pairs to merge
-            pairs = set()
-            # Loop over fingerprinting pairs
-            for fp1, fp2 in self.score_combinations(unique, threshold):
-                # Check if comparison score is above threshold
-                if fp1.compare(fp2) >= threshold:
-                    # Add pairs
-                    pairs.add((fp1, fp2))
+            pairs = set([
+                # Define pairs
+                (fp1, fp2)
+                # For each combination of pairs
+                for fp1, fp2 in self.score_combinations(unique, threshold)
+                # Where similarity >= threshold
+                if fp1.compare(fp2) >= threshold
+            ])
 
-            # Create mapping
+            # Create mapping of original fingerprint -> merged fingerprint
             mapping = dict()
             # Loop over all fingerprints to be merged
             for fp1, fp2 in pairs:
                 # Create merged fingerprint
-                fp_merged = fp1.merge(fp2)
-                # Check for double mapping fp1
-                if fp1 in mapping:
-                    fp_merged = fp_merged.merge(mapping.get(fp1))
-                # Check for double mapping fp2
-                if fp2 in mapping:
-                    fp_merged = fp_merged.merge(mapping.get(fp2))
-
+                fp_merged = mapping.get(fp1, fp1).merge(
+                            mapping.get(fp2, fp2))
+                # Set mappings
                 mapping[fp1] = fp_merged
                 mapping[fp2] = fp_merged
 
             # Apply mapping
             result = np.array([mapping.get(fp, fp) for fp in fingerprints])
 
-        # Return new fingerprints
+        ####################################################################
+        #                    Return merged fingerprints                    #
+        ####################################################################
         return result
 
 
