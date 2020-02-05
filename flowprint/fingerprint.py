@@ -3,6 +3,7 @@ from datetime import datetime
 class Fingerprint(frozenset):
 
     def __new__(cls, *args):
+        """FlowPrint fingerprint: a frozenset of NetworkDestinations."""
         self = super(Fingerprint, cls).__new__(cls, *args)
         self._destinations = None
         self._certificates = None
