@@ -7,9 +7,7 @@ import numpy as np
 
 class Fingerprints(object):
 
-    def __init__(self, cluster, batch=300, window=30, correlation=0.1, similarity=0.9):
-        # Initialise cluster
-        self.cluster = cluster
+    def __init__(self, batch=300, window=30, correlation=0.1, similarity=0.9):
         # Initialise fingerprints
         self.fingerprints = list()
 
@@ -122,16 +120,12 @@ class Fingerprints(object):
                 Resulting fingerprints corresponding to each flow.
             """
         ####################################################################
-        #                        Setup fingerprints                        #
-        ####################################################################
-        # Create clustering instance
-        cluster = self.cluster.copy()
-
-        ####################################################################
         #                       Create fingerprints                        #
         ####################################################################
 
-        # Cluster traffic
+        # Create clustering instance
+        cluster = Cluster()
+        # Cluster flows into network destinations
         cluster.fit(X, y)
 
         # Find cliques in clusters
@@ -140,8 +134,11 @@ class Fingerprints(object):
                     correlation = self.correlation # Set correlation threshold
                   ).fit_predict(cluster)           # Get cliques
 
-        # Get all cliques as fingerprints
-        fingerprints = list(Fingerprint(c) for c in cliques if len(c) > 1)
+        # Transform cliques to fingerprints
+        fingerprints = list(
+            Fingerprint(c)                 # Cast to fingerprint
+            for c in cliques if len(c) > 1 # Only select cliques > 1
+        )
 
         ####################################################################
         #                   Assign fingerprints per flow                   #

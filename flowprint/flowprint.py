@@ -37,8 +37,7 @@ class FlowPrint(object):
         self.threshold = threshold
 
         # Create cluster and fingerprint generator
-        self.cluster       = Cluster()
-        self.fingerprinter = Fingerprints(self.cluster, self.batch, self.window,
+        self.fingerprinter = Fingerprints(self.batch, self.window,
                                           self.correlation, self.similarity)
 
         # Store fingerprints
