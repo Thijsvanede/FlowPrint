@@ -5,25 +5,44 @@ import numpy as np
 
 class CrossCorrelationGraph(object):
 
-    def __init__(self, cluster=None, window=5, cc_threshold=0):
-        """CrossCorrelationGraph for computing correlation between clusters."""
-        # Set cluster
-        self.cluster = cluster or Cluster()
+    def __init__(self, window=30, correlation=0.1):
+        """CrossCorrelationGraph for computing correlation between clusters.
 
-        # Set correlation parameters
+            IMPORTANT: The self.graph object is an optimised graph. Each node
+            does not represent a network destination, but represents an activity
+            fingerprint. E.g. when destinations A and B are both only active at
+            time slices 3 and 7, then these destinations are represented by a
+            single node. We use the self.mapping to extract the network
+            destinations from each graph node.
+                This is a huge optimisation for finding cliques as the number of
+            different network destinations theoretically covers the entire IP
+            space, whereas the number of activity fingerprints is bounded by
+            2^(batch / window), in our work 2^(300/30) = 2^10 = 1024. If these
+            parameters change, the complexity may increase, but never beyond the
+            original bounds. Hence, this optimisation never has a worse time
+            complexity.
+
+            Parameters
+            ----------
+            window : float, default=30
+                Threshold for the window size in seconds.
+
+            correlation : float, default=0.1
+                Threshold for the minimum required correlation
+            """
+        # Set parameters
         self.window       = window
-        self.cc_threshold = cc_threshold
-        self.cc           = dict()
+        self.correlation  = correlation
         self.mapping      = dict()
         self.graph        = nx.Graph()
 
-    def fit(self, X, y=None):
+    def fit(self, cluster, y=None):
         """Fit Cross Correlation Graph.
 
             Parameters
             ----------
-            X : array-like of shape=(n_samples,)
-                Flows for which to create a cross-correlation graph.
+            cluster : Cluster
+                Cluster to fit graph, cluster must be populated with flows
 
             y : ignored
 
@@ -32,21 +51,15 @@ class CrossCorrelationGraph(object):
             result : self
                 Returns self
             """
-        # Fit cluster and return self
-        pred = self.cluster.predict(X)
-        # Get predictions as Clusters
-        clusters = self.cluster.cluster_dict()
-        pred = [clusters.get(x) for x in pred]
+        # Compute cross correlations within cluster
+        correlations, self.mapping = self.cross_correlation(cluster)
 
-        # Compute cross correlation
-        self.cc, self.mapping = self.cross_correlation(X)
-
-        # In case of cc_threshold == 0
-        if self.cc_threshold == 0:
+        # In case of correlation <= 0
+        if self.correlation <= 0:
             # Create a fully connected graph
             self.graph = nx.complete_graph(list(self.mapping.keys()))
 
-        # In case of cc_threshold > 0
+        # In case of correlation > 0
         else:
             # Create graph
             self.graph = nx.Graph()
@@ -54,8 +67,8 @@ class CrossCorrelationGraph(object):
             # Add nodes of graph
             self.graph.add_nodes_from(list(self.mapping.keys()))
             # Add edges of graph
-            for (u, v), weight in self.cc.items():
-                if weight >= self.cc_threshold:
+            for (u, v), weight in correlations.items():
+                if weight >= self.correlation:
                     self.graph.add_edge(u, v, weight=weight)
 
         # Return self for fit predict method
@@ -102,24 +115,33 @@ class CrossCorrelationGraph(object):
     #                      Compute cross correlation                       #
     ########################################################################
 
-    def cross_correlation(self, X):
+    def cross_correlation(self, cluster):
         """Compute cross correlation between clusters
 
             Parameters
             ----------
-            X : iterable of Flow
-                Flows from which to compute activity.
+            cluster : Cluster
+                Cluster to fit graph, cluster must be populated with flows
 
             Returns
             -------
-            result : dict
-                Dictionary of cross correlation values.
+            correlation : dict
+                Dictionary of cross correlation values between each
+                NetworkDestination inside cluster.
+
+            mapping : dict
+                Mapping of activity fingerprint -> clusters
             """
-        # Initialise result
-        result = dict()
+        # Initialise correlation
+        correlation = dict()
 
         # Get activity of samples
-        mapping = self.activity(X)
+        activity = self.activity(cluster)
+        # Get inverted mapping
+        mapping = dict()
+        for destination, active in activity.items():
+            mapping[frozenset(active)] =\
+                mapping.get(frozenset(active), set()) | set([destination])
 
         # Compute cross correlation values
         for x, y in combinations(mapping, 2):
@@ -130,99 +152,45 @@ class CrossCorrelationGraph(object):
                 # Compute intersection
                 intersection = len(x | y)
                 # Add correlation
-                result[x, y] = union / intersection
+                correlation[x, y] = union / intersection
 
         # Return result
-        return result, mapping
+        return correlation, mapping
 
-    def activity(self, X):
+    def activity(self, cluster):
         """Extracts sets of active clusters by time.
 
             Parameters
             ----------
-            X : iterable of Flow
-                Flows from which to compute activity.
+            cluster : Cluster
+                Cluster to fit graph, cluster must be populated with flows
 
             Returns
             -------
-            activity : list of set
-                Sets of simultaniously active clusters.
-
-            combinations : set of tuple
-                Sets of combinations that must be computed.
+            mapping : dict
+                Dictionary of NetworkDestination -> activity
             """
-        # Get clusters
-        clusters     = self.cluster.predict(X)
-        cluster_dict = self.cluster.cluster_dict()
-        clusters     = [cluster_dict.get(c) for c in clusters]
+        # Get samples
+        X = cluster.samples
+        # Compute start time
+        start = min(x.time_start() for x in X)
 
-        # Get all flows with timestamp in each window
-        samples = list()
-
-        # Loop over all clusters
-        for flow, cluster in zip(X, clusters):
-            # Get timestamps from flow
-            timestamps = list(sorted(flow.timestamps))
-            # Get first timestamp
-            start = timestamps[0]
-
-            # Initialise first entry and last entry to samples
-            entries = [(start, flow, cluster)]
-
-            # Add one timestamp for every window
-            for timestamp in timestamps:
-                # Check new window
-                if timestamp > start + self.window:
-                    # Add new entry
-                    entries.append((timestamp, flow, cluster))
-                    # Reset start
-                    start = timestamp
-
-            # Add entries to samples
-            samples.extend(entries)
-
-        # Sort by timestamp
-        samples = list(sorted(samples))
-
-        # Create activity sets of clusters
-        activity = dict()
-
-        # Set start time
-        start  = samples[0][0]
-        active = set()
-        i      = 0
-
-        # Loop over all entries
-        for ts, flow, cluster in samples:
-            # Skip anomalies
-            if cluster.identifier != -1:
-                # In case of next timeframe dump active set
-                if ts > start + self.window:
-                    # Reset last timestamp
-                    start = ts
-
-                    # Add activity to all existing clusters
-                    for c in active:
-                        activity[c] = activity.get(c, set()) | set([i])
-
-                    # Increase activity frame
-                    i += 1
-
-                    # Reset active clusters
-                    active = set()
-
-                # Add current cluster to active
-                active.add(cluster)
-
-        # Add final set if any
-        for c in active:
-            activity[c] = activity.get(c, set()) | set([i])
-
-        # Get mapping of activities
+        # Initialise mapping of NetworkDestination -> activity
         mapping = dict()
-        # Loop over all flows
-        for k, v in activity.items():
-            mapping[frozenset(v)] = mapping.get(frozenset(v), set()) | set([k])
 
-        # Return full activity
+        # Loop over all network destinations
+        for destination in cluster.clusters():
+            # Loop over each flow in destination
+            for flow in destination.samples:
+                # Compute activity per flow
+                activity = set()
+                # Loop over all timestamps
+                for timestamp in flow.timestamps:
+                    # Compute activity for each timestamp
+                    activity.add(int((timestamp - start) // self.window))
+
+                # Add activity to mapping
+                mapping[destination] = mapping.get(destination, set()) | activity
+
+        # Return activity mapping
         return mapping

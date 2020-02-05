@@ -7,7 +7,7 @@ import numpy as np
 
 class Fingerprints(object):
 
-    def __init__(self, cluster, batch=3600, window=5, correlation=0.2, similarity=0.5):
+    def __init__(self, cluster, batch=300, window=30, correlation=0.1, similarity=0.9):
         # Initialise cluster
         self.cluster = cluster
         # Initialise fingerprints
@@ -134,11 +134,11 @@ class Fingerprints(object):
         # Cluster traffic
         cluster.fit(X, y)
 
-        # TODO
-
         # Find cliques in clusters
-        cliques = CrossCorrelationGraph(cluster, window=self.window,
-                    cc_threshold=self.correlation).fit_predict(X)
+        cliques = CrossCorrelationGraph(
+                    window      = self.window,     # Set window size
+                    correlation = self.correlation # Set correlation threshold
+                  ).fit_predict(cluster)           # Get cliques
 
         # Get all cliques as fingerprints
         fingerprints = list(Fingerprint(c) for c in cliques if len(c) > 1)
@@ -146,6 +146,8 @@ class Fingerprints(object):
         ####################################################################
         #                   Assign fingerprints per flow                   #
         ####################################################################
+
+        # TODO
 
         # Predict cluster
         pred = cluster.predict(X)
