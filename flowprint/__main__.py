@@ -80,7 +80,7 @@ Data input (either --files or --read required):
         # Give help message
         print(parser.format_help())
         # Throw exception
-        raise RuntimeError("No input data provided, please specify --files or --read arguments.")
+        raise RuntimeError("No input data provided, please specify --pcaps or --read arguments.")
 
     # Initialise flows and labels
     X, y = list(), list()
