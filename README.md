@@ -1,4 +1,4 @@
-# FlowPrint
+# FlowPrint - In progress
 This repository contains the code for FlowPrint as implemented in the NDSS FlowPrint [1] paper.
 
 ## Installation
