@@ -131,14 +131,14 @@ class Fingerprints(object):
         #                       Create fingerprints                        #
         ####################################################################
 
-        # TODO
-
         # Cluster traffic
         cluster.fit(X, y)
 
+        # TODO
+
         # Find cliques in clusters
         cliques = CrossCorrelationGraph(cluster, window=self.window,
-                    cc_threshold=self.correlation).fit_cliques(X)
+                    cc_threshold=self.correlation).fit_predict(X)
 
         # Get all cliques as fingerprints
         fingerprints = list(Fingerprint(c) for c in cliques if len(c) > 1)

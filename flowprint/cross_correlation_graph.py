@@ -6,7 +6,7 @@ import numpy as np
 class CrossCorrelationGraph(object):
 
     def __init__(self, cluster=None, window=5, cc_threshold=0):
-        """"""
+        """CrossCorrelationGraph for computing correlation between clusters."""
         # Set cluster
         self.cluster = cluster or Cluster()
 
@@ -17,13 +17,15 @@ class CrossCorrelationGraph(object):
         self.mapping      = dict()
         self.graph        = nx.Graph()
 
-    def fit(self, X):
+    def fit(self, X, y=None):
         """Fit Cross Correlation Graph.
 
             Parameters
             ----------
-            X : iterable of Flow
+            X : array-like of shape=(n_samples,)
                 Flows for which to create a cross-correlation graph.
+
+            y : ignored
 
             Returns
             -------
@@ -59,27 +61,42 @@ class CrossCorrelationGraph(object):
         # Return self for fit predict method
         return self
 
-    def fit_cliques(self, X):
+    def predict(self, X=None, y=None):
         """Fit Cross Correlation Graph and return cliques.
 
             Parameters
             ----------
-            X : iterable of Flow
-                Flows for which to create a cross-correlation graph.
+            X : ignored
+
+            y : ignored
 
             Returns
             -------
             result : Generator of cliques
                 Generator of all cliques in the graph
             """
-        # Get graph
-        graph = self.fit(X).graph
-
         # Get cliques
-        cliques = nx.find_cliques(graph)
-
+        cliques = nx.find_cliques(self.graph)
         # Return generator over cliques
         return (set.union(*[self.mapping.get(n) for n in c]) for c in cliques)
+
+    def fit_predict(self, X, y=None):
+        """Fit cross correlation graph with clusters from X and return cliques.
+
+            Parameters
+            ----------
+            X : array-like of shape=(n_samples,)
+                Flows for which to create a cross-correlation graph.
+
+            y : ignored
+
+            Returns
+            -------
+            result : Generator of cliques
+                Generator of all cliques in the graph
+            """
+        # Perform fit and predict
+        return self.fit(X).predict(X)
 
     ########################################################################
     #                      Compute cross correlation                       #
