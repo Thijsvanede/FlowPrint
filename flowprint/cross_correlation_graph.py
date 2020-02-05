@@ -1,7 +1,5 @@
-from cluster import Cluster
 from itertools import combinations
 import networkx as nx
-import numpy as np
 
 class CrossCorrelationGraph(object):
 
