@@ -308,6 +308,11 @@ class Fingerprints(object):
     def score_combinations(self, fingerprints, threshold):
         """Generator for combinations of fingerprints where can be > threshold.
 
+            IMPORTANT: This method is purely for efficiency purposes. It is
+            based on the observation that fingerprints of size N require at
+            least M equal destinations to reach the threshold. Alternatively
+            `itertools.combinations(fingerprints, 2)`` may be used.
+
             Parameters
             ----------
             fingerprints : iterable
