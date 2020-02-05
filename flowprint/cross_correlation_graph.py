@@ -33,7 +33,7 @@ class CrossCorrelationGraph(object):
         # Fit cluster and return self
         pred = self.cluster.predict(X)
         # Get predictions as Clusters
-        clusters = self.cluster.get_cluster_dict()
+        clusters = self.cluster.cluster_dict()
         pred = [clusters.get(x) for x in pred]
 
         # Compute cross correlation
@@ -136,7 +136,7 @@ class CrossCorrelationGraph(object):
             """
         # Get clusters
         clusters     = self.cluster.predict(X)
-        cluster_dict = self.cluster.get_cluster_dict()
+        cluster_dict = self.cluster.cluster_dict()
         clusters     = [cluster_dict.get(c) for c in clusters]
 
         # Get all flows with timestamp in each window
@@ -178,7 +178,7 @@ class CrossCorrelationGraph(object):
         # Loop over all entries
         for ts, flow, cluster in samples:
             # Skip anomalies
-            if cluster.get_id() != -1:
+            if cluster.identifier != -1:
                 # In case of next timeframe dump active set
                 if ts > start + self.window:
                     # Reset last timestamp

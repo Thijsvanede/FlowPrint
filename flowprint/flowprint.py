@@ -92,7 +92,7 @@ class FlowPrint(object):
         y = np.asarray(y) if y is not None else None
 
         # Create fingerprints from X
-        fingerprints = self.fingerprinter.fit_predict_fingerprints(X)
+        fingerprints = self.fingerprinter.fit_predict(X)
         fingerprints = np.asarray([fp.as_set() for fp in fingerprints])
 
         # Set all fingerprints to 1 in case of no label
@@ -152,7 +152,7 @@ class FlowPrint(object):
         X = np.asarray(X)
 
         # Create fingerprints from X
-        fingerprints = self.fingerprinter.fit_predict_fingerprints(X)
+        fingerprints = self.fingerprinter.fit_predict(X)
         fingerprints = np.asarray([fp.as_set() for fp in fingerprints])
 
         # Compute anomalies from fingerprints and return

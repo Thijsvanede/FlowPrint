@@ -13,9 +13,9 @@ class Fingerprints(object):
         # Initialise fingerprints
         self.fingerprints = list()
 
-        # Set threshold fingerprint match
-        self.batch  = batch
-        self.window = window
+        # Set FlowPrint parameters
+        self.batch       = batch
+        self.window      = window
         self.correlation = correlation
         self.similarity  = similarity
 
@@ -32,31 +32,6 @@ class Fingerprints(object):
                 Samples (Flow objects) from which to generate fingerprints.
 
             y : array-like of shape=(n_samples,), optional
-                Labels corresponding to X.
-                If given, these are used to give a prediction based on
-                represented fingerprints. I.e. each fingerprint is labeled based
-                on its corresponding samples. Each flow will get the label of
-                the fingerprint it belongs to.
-
-            Returns
-            -------
-            result : np.array of shape=(n_samples,)
-                Resulting labels (if y is given) or fingerprints (otherwise).
-            """
-        if y is None:
-            return self.fit_predict_fingerprints(X)
-        else:
-            return self.fit_predict_labels(X, y)
-
-    def fit_predict_fingerprints(self, X, y=None):
-        """Create fingerprints from given samples in X.
-
-            Parameters
-            ----------
-            X : array-like of shape=(n_samples,)
-                Samples (Flow objects) from which to generate fingerprints.
-
-            y : array-like of shape=(n_samples,), optional
                 Labels corresponding to X. If given, they will be encorporated
                 into each fingerprint.
 
@@ -65,6 +40,10 @@ class Fingerprints(object):
             result : np.array of shape=(n_samples,)
                 Resulting fingerprints.
             """
+        ####################################################################
+        #                        Setup fingerprints                        #
+        ####################################################################
+
         # Empty fingerprints
         self.fingerprints = list()
 
@@ -76,141 +55,101 @@ class Fingerprints(object):
         result = (np.zeros(X.shape[0]) - 1).astype(object)
 
         ####################################################################
-        #                  Divide into buckets of 1 hour                   #
+        #                       Divide into batches                        #
         ####################################################################
 
         # Sort X and y by time
         sort_time = np.argsort(X)
         sort_orig = np.argsort(sort_time)
-        X_orig = X[sort_time]
-        y_orig = y[sort_time]
+        X = X[sort_time]
+        y = y[sort_time]
 
-        # Divide X and y in bins of size batch
-        sort_hour = np.array([x.time_start() for x in X_orig])
-        # Compute number of required bins
-        if sort_hour.shape[0]:
-            bins = int(np.ceil((max(sort_hour) - min(sort_hour)) / self.batch))
+        # Divide X and y in batches of size batch
+        sort_batch = np.array([x.time_start() for x in X])
+        # Compute number of required batches
+        if sort_batch.shape[0]:
+            batches = int(np.ceil((max(sort_batch) - min(sort_batch)) / self.batch))
         else:
-            bins = 0
-        # Get edges of 1 hour bins
-        _, edges = np.histogram(sort_hour, bins=max(1, bins))
-        # Sort indices into 1 hour bins
-        bins = np.digitize(sort_hour, edges[:-1])
+            batches = 0
+        # Get edges of batches
+        _, edges = np.histogram(sort_batch, bins=max(1, batches))
+        # Sort indices into batches
+        batches = np.digitize(sort_batch, edges[:-1])
 
-        # Loop over each 1 hour bin
-        for bin in np.unique(bins):
+        ####################################################################
+        #                Create fingerprints for each batch                #
+        ####################################################################
 
-            ################################################################
-            #                Create fingerprints per batch                 #
-            ################################################################
-            # Get data for given hour
-            X = X_orig[bins == bin]
-            y = y_orig[bins == bin]
+        # Loop over each batch
+        for batch in np.unique(batches):
 
-            prediction = self._fit_single_batch_(X, y)
-            result[bins == bin] = prediction
+            # Get data for given batch
+            X_batch = X[batches == batch]
+            y_batch = y[batches == batch]
 
-            # # Create clustering instance
-            # cluster = self.cluster.copy()
-            #
-            # # Fit cluster
-            # cluster.fit(X, y)
-            # # Fit a cross-correlation graph
-            # graph = CrossCorrelationGraph(cluster, window=self.window,
-            #             cc_threshold=self.correlation).fit_graph(X)
-            #
-            # # Get cliques from graph as fingerprints
-            # fingerprints = list(Fingerprint(c) for c in nx.find_cliques(graph)
-            #                     if len(c) > 1)
-            #
-            # # Predict cluster
-            # pred = cluster.predict(X)
-            # translation = cluster.get_cluster_dict()
-            # pred = [translation.get(p) for p in pred]
-            #
-            # # Assign each prediction to a fingerprint
-            # table = dict()
-            # for p in np.unique(pred):
-            #     entry = [fp for fp in fingerprints if p in fp]
-            #     if not entry:
-            #         table[p] = Fingerprint()
-            #     else:
-            #         table[p] = max(entry, key=lambda x: len(x))
-            #
-            # # Get results
-            # prediction = np.array([table.get(p) for p in pred])
-            # # For unknown results assign nearest neighbour
-            # prediction = self.assign_nearest(X, prediction)
-            # # Merge similar fingerprints
-            # prediction = self.merge_fingerprints(prediction, self.similarity)
-            # # Set partial result of this hour
-            # result[bins == bin] = prediction
-            #
-            # # Append fingerprints to histsory of fingerprints
-            # self.fingerprints.append(fingerprints)
+            # Create fingerprints for single batch
+            prediction = self._fit_single_batch_(X_batch, y_batch)
+            result[batches == batch] = prediction
+
+        ####################################################################
+        #                    Merge similar fingerprints                    #
+        ####################################################################
 
         # Merge similar fingerprints on all timeslots
         result = self.merge_fingerprints(result, self.similarity)
         # For unknown results assign nearest neighbour
-        result = self.assign_nearest(X_orig, result)
+        result = self.assign_nearest(X, result)
 
         # Return result
         return result[sort_orig]
 
-    def fit_predict_labels(self, X, y):
-        """Create fingerprints from given samples in X.
+
+    def _fit_single_batch_(self, X, y=None):
+        """Create fingerprints for a given batch of flows.
 
             Parameters
             ----------
-            X : array-like of shape=(n_samples,)
+            X : array-like of shape=(n_samples_batch,)
                 Samples (Flow objects) from which to generate fingerprints.
 
-            y : array-like of shape=(n_samples,)
-                Labels corresponding to X. These are used to give a prediction
-                based on represented fingerprints. I.e. each fingerprint is
-                labeled based on its corresponding samples. Each flow will get
-                the label of the fingerprint it belongs to.
+            y : array-like of shape=(n_samples_batch,), optional
+                Labels corresponding to X. If given, they will be encorporated
+                into each fingerprint.
 
             Returns
             -------
-            result : np.array of shape=(n_samples,)
-                Resulting labels (if y is given) or fingerprints (otherwise).
+            np.array of shape=(n_samples,)
+                Resulting fingerprints corresponding to each flow.
             """
-        # Empty fingerprints
-        self.fingerprints = list()
-
-        # Retrieve fingerprints for each item
-        fingerprints = self.fit_predict_fingerprints(X, y)
-        # Get labels
-        labels = np.array([fp.label for fp in fingerprints])
-        # Return result
-        return labels
-
-    def _fit_single_batch_(self, X, y=None):
-        """Fit method for a single bin of data"""
+        ####################################################################
+        #                        Setup fingerprints                        #
+        ####################################################################
         # Create clustering instance
         cluster = self.cluster.copy()
 
-        # Fit cluster
+        ####################################################################
+        #                       Create fingerprints                        #
+        ####################################################################
+
+        # TODO
+
+        # Cluster traffic
         cluster.fit(X, y)
 
-        # # Fit a cross-correlation graph
-        # graph = CrossCorrelationGraph(cluster, window=self.window,
-        #             cc_threshold=self.correlation).fit_graph(X)
-        #
-        # # Get cliques from graph as fingerprints
-        # fingerprints = list(Fingerprint(c) for c in nx.find_cliques(graph)
-        #                     if len(c) > 1)
-
-        # TODO added for testing
+        # Find cliques in clusters
         cliques = CrossCorrelationGraph(cluster, window=self.window,
                     cc_threshold=self.correlation).fit_cliques(X)
 
+        # Get all cliques as fingerprints
         fingerprints = list(Fingerprint(c) for c in cliques if len(c) > 1)
+
+        ####################################################################
+        #                   Assign fingerprints per flow                   #
+        ####################################################################
 
         # Predict cluster
         pred = cluster.predict(X)
-        translation = cluster.get_cluster_dict()
+        translation = cluster.cluster_dict()
         pred = [translation.get(p) for p in pred]
 
         # Assign each prediction to a fingerprint
@@ -238,99 +177,6 @@ class Fingerprints(object):
     ########################################################################
     #                          Auxiliary methods                           #
     ########################################################################
-
-    def activity(self, X, cluster, interval=5):
-        """Extracts intervals of active clusters.
-
-            Parameters
-            ----------
-            X : iterable of Flow
-                Flows from which to compute activity.
-
-            cluster : Cluster
-                Cluster to use for computing activity.
-
-            interval : float, default=5
-                Number of seconds for each interval
-
-            Returns
-            -------
-            activity : list of set
-                Sets of simultaniously active clusters per interval.
-
-            flows : list of set
-                Sets of simultaniously active flows per interval.
-            """
-        # Get clusters
-        clusters     = cluster.predict(X)
-        cluster_dict = cluster.get_cluster_dict()
-        clusters     = [cluster_dict.get(c) for c in clusters]
-
-        # Get all flows with timestamp in each interval
-        samples = list()
-
-        # Loop over all clusters
-        for (index, flow), cluster in zip(enumerate(X), clusters):
-            # Get timestamps from flow
-            timestamps = list(sorted(flow.timestamps))
-            # Get first timestamp
-            start = timestamps[0]
-
-            # Initialise new entry to samples
-            entries = [(start, index, cluster)]
-
-            # Add one timestamp for every interval
-            for timestamp in sorted(flow.timestamps):
-                # Check new interval
-                if timestamp > start + interval:
-                    # Add new entry
-                    entries.append((timestamp, index, cluster))
-                    # Reset start
-                    start = timestamp
-
-            # Add entries to samples
-            samples.extend(entries)
-
-        # Sort by timestamp
-        samples = list(sorted(samples))
-
-        # Create activity sets of clusters
-        activity = list()
-        flows    = list()
-
-        # Set start time
-        start  = samples[0][0]
-        active_clusters = set()
-        active_flows    = set()
-
-        # Loop over all entries
-        for ts, flow_index, cluster in samples:
-            # Skip anomalies
-            if cluster.get_id() != -1:
-                # In case of next timeframe dump active set
-                if ts > start + interval:
-                    # Reset last timestamp
-                    start = ts
-
-                    # Add activity
-                    activity.append(active_clusters)
-                    flows   .append(active_flows)
-
-                    # Reset active clusters and flows
-                    active_clusters = set()
-                    active_flows    = set()
-
-                # Add current cluster and flow
-                active_clusters.add(cluster)
-                active_flows   .add(flow_index)
-
-        # Add final set if any
-        if active_clusters:
-            activity.append(active_clusters)
-            flows   .append(active_flows)
-
-        # Return full activity
-        return activity, flows
 
     def assign_nearest(self, X, y):
         """Set unassigned labels to that of nearest neighbours.
@@ -455,77 +301,6 @@ class Fingerprints(object):
         # Return new fingerprints
         return result
 
-    def merge_fingerprints_old(self, fingerprints, threshold=1):
-        """Merge fingerprints based on similarity.
-            TODO remove: this is a slow implementation
-
-            Parameters
-            ----------
-            fingerprints : list
-                List of fingerprints to merge.
-
-            Returns
-            -------
-            result : list
-                Merged fingerprints
-            """
-        # Initialise result
-        result = np.zeros(fingerprints.shape[0], dtype=fingerprints.dtype)
-
-        # Retrieve unique fingerprints
-        unique = dict()
-        # Loop over all fingerprints
-        for fingerprint in fingerprints:
-            # Get fingerprint hash
-            fp_hash = fingerprint.as_set()
-            # Add fingerprint to hashed version
-            unique[fp_hash] = unique.get(fp_hash, Fingerprint()).merge(fingerprint)
-
-        # Set results to merged version
-        result = np.array([unique[fp.as_set()] for fp in fingerprints])
-
-        # If threshold is 0 everything is equal
-        if threshold == 0:
-            # Create empty fingerprint
-            fingerprint = Fingerprint()
-            # Merge all fingerprints
-            for fp in unique.values():
-                fingerprint = fingerprint.merge(fp)
-            # Set result to big fingerprint
-            result = np.array([fingerprint for fp in fingerprints])
-
-        # Check if partial matches should be merged, i.e. 0 < threshold < 1
-        elif threshold < 1:
-            # Initialise fingerprinting pairs to merge
-            pairs = set()
-            # Loop over fingerprinting pairs
-            for fp1, fp2 in self.score_combinations(result, threshold):
-                # Check if comparison score is above threshold
-                if fp1.compare(fp2) >= threshold:
-                    # Add pairs
-                    pairs.add((fp1, fp2))
-
-            # Create mapping
-            mapping = dict()
-            # Loop over all fingerprints to be merged
-            for fp1, fp2 in pairs:
-                # Create merged fingerprint
-                fp_merged = fp1.merge(fp2)
-                # Check for double mapping fp1
-                if fp1 in mapping:
-                    fp_merged = fp_merged.merge(mapping.get(fp1))
-                # Check for double mapping fp2
-                if fp2 in mapping:
-                    fp_merged = fp_merged.merge(mapping.get(fp2))
-
-                mapping[fp1] = fp_merged
-                mapping[fp2] = fp_merged
-
-            # Apply mapping
-            result = np.array([mapping.get(fp, fp) for fp in result])
-
-        # Return new fingerprints
-        return result
 
     def score_combinations(self, fingerprints, threshold):
         """Generator for combinations of fingerprints where can be > threshold.
@@ -581,6 +356,10 @@ class Fingerprints(object):
                     a = lengths.get(length )
                     b = lengths.get(length2)
                     yield from ((x,y) for x in a for y in b)
+
+
+
+
 
     def map(self, fingerprints_test, fingerprints_train, verbose=False):
         """Map training fingerprints to testing fingerprints.
