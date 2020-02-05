@@ -4,7 +4,7 @@ from fingerprint             import Fingerprint
 from itertools               import combinations
 import numpy as np
 
-class Fingerprints(object):
+class FingerprintGenerator(object):
 
     def __init__(self, batch=300, window=30, correlation=0.1, similarity=0.9):
         # Set FlowPrint parameters

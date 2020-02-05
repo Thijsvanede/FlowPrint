@@ -1,6 +1,6 @@
 from cluster import Cluster
 from collections import Counter
-from fingerprints import Fingerprints
+from fingerprints import FingerprintGenerator
 import copy
 import numpy as np
 
@@ -37,7 +37,7 @@ class FlowPrint(object):
         self.threshold = threshold
 
         # Create cluster and fingerprint generator
-        self.fingerprinter = Fingerprints(self.batch, self.window,
+        self.fingerprinter = FingerprintGenerator(self.batch, self.window,
                                           self.correlation, self.similarity)
 
         # Store fingerprints
