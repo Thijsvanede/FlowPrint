@@ -1,5 +1,7 @@
 # FlowPrint - In progress
-This repository contains the code for FlowPrint as implemented in the NDSS FlowPrint [1] paper.
+This repository contains the code for FlowPrint by the authors of the NDSS FlowPrint [1] paper.
+This `master` branch provides FlowPrint as an out of the box tool.
+For the original experiments from the paper, please checkout the `NDSS` branch.
 
 ## Installation
 TODO
