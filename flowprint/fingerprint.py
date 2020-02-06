@@ -83,3 +83,10 @@ class Fingerprint(frozenset):
         # Else return destination & certificate hash
         return hash((frozenset(self.destinations),
                      frozenset(self.certificates)))
+
+    ########################################################################
+    #                        String representation                         #
+    ########################################################################
+
+    def __str__(self):
+        return "Fingerprint({}) [size={:4}]".format(hex(id(self)), len(self))
