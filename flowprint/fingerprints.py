@@ -163,10 +163,7 @@ class FingerprintGenerator(object):
         # Get fingerprint per network destination
         mapping_fingerprints = dict()
         # Map destination to largest fingerprint by (#destinations, #flows)
-        for fingerprint in sorted(
-                fingerprints,
-                key=lambda x: (len(x), sum(len(c.samples) for c in x))
-            ):
+        for fingerprint in sorted(fingerprints):
             for destination in fingerprint:
                 mapping_fingerprints[destination] = fingerprint
         # Apply mapping
