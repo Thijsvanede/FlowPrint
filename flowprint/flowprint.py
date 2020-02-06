@@ -36,9 +36,13 @@ class FlowPrint(object):
         # Set default anomaly threshold
         self.threshold = threshold
 
-        # Create cluster and fingerprint generator
-        self.fingerprinter = FingerprintGenerator(self.batch, self.window,
-                                          self.correlation, self.similarity)
+        # Create fingerprint generator
+        self.fingerprinter = FingerprintGenerator(
+            batch       = self.batch,
+            window      = self.window,
+            correlation = self.correlation,
+            similarity  = self.similarity
+        )
 
         # Store fingerprints
         self.fingerprints = dict()
@@ -92,7 +96,6 @@ class FlowPrint(object):
 
         # Create fingerprints from X
         fingerprints = self.fingerprinter.fit_predict(X)
-        fingerprints = np.asarray([fp.as_set() for fp in fingerprints])
 
         # Set all fingerprints to 1 in case of no label
         if y is None:
