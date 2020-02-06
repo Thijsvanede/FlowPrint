@@ -5,6 +5,7 @@ class Fingerprint(frozenset):
         self = super(Fingerprint, cls).__new__(cls, *args)
         self._destinations = None
         self._certificates = None
+        self._n_flows    = None
         return self
 
     ########################################################################
@@ -17,8 +18,8 @@ class Fingerprint(frozenset):
 
     def compare(self, other):
         """Compare two fingerprints."""
-        set_self  = self .certificates | self .destinations
-        set_other = other.certificates | other.destinations
+        set_self  = self .as_set()
+        set_other = other.as_set()
         return len(set_self & set_other) / max(len(set_self | set_other), 1)
 
     ########################################################################
@@ -59,6 +60,21 @@ class Fingerprint(frozenset):
         # Return cached certificates
         return self._certificates
 
+    @property
+    def n_flows(self):
+        """Get number of samples related to this Fingerprint."""
+        # Only compute number of samples first time
+        if self._n_flows is None:
+            # Initialise number of samples
+            self._n_flows = 0
+            # Loop over all clusters
+            for cluster in self:
+                # Add number of samples per cluster
+                self._n_flows += len(cluster.samples)
+
+        # Return cached n_flows
+        return self._n_flows
+
     ########################################################################
     #                            Cast to object                            #
     ########################################################################
@@ -70,6 +86,22 @@ class Fingerprint(frozenset):
     ########################################################################
     #                              Overrides                               #
     ########################################################################
+
+    def __lt__(self, other):
+        return len(self) < len(other) or\
+                (len(self) == len(other) and self.n_flows < other.n_flows)
+
+    def __le__(self, other):
+        return len(self) < len(other) or\
+                (len(self) == len(other) and self.n_flows <= other.n_flows)
+
+    def __ge__(self, other):
+        return len(self) > len(other) or\
+                (len(self) == len(other) and self.n_flows >= other.n_flows)
+
+    def __gt__(self, other):
+        return len(self) > len(other) or\
+                (len(self) == len(other) and self.n_flows > other.n_flows)
 
     def __eq__(self, other):
         """Equality method override."""
