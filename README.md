@@ -46,8 +46,11 @@ python3 flow_changes.py -l <dataset> -k <folds> -f <change> -i <change> (--anoma
 --recognition    for app recognition
 ```
 
-## Training size
+## Training Size
 This experiments uses the recognition.py from App Recognition and anomaly.py from Unseen App Detection.
 The scripts in `experiments/training_size/` automatically run the aforementioned scripts with different number of apps.
 
-## 
+## Execution Time
+ 1. Clustering: run `experiments/time/clustering.py` with desired dataset.
+ 2. Fingerprinting: run `experiments/time/fingerprinting.py` with desired dataset.
+ 3. Closest fingerprint/unseen app fingerprint: run `experiments/time/matching.py` with desired dataset.
