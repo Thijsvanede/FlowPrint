@@ -118,8 +118,14 @@ Data input (either --files or --read required):
     #                            Run FlowPrint                             #
     ########################################################################
 
-    # Create FlowPrint instance
-    flowprint = FlowPrint()
+    # Create FlowPrint instance with given arguments
+    flowprint = FlowPrint(
+        batch       = args.batch,
+        window      = args.window,
+        correlation = args.correlation,
+        similarity  = args.similarity
+    )
+
     # Fit fingerprints
     flowprint.fit(X, y)
 
