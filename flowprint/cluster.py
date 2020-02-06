@@ -415,27 +415,3 @@ class NetworkDestination(object):
         return "NetworkDestination [{:4}] [size={:4}] [IPs={}] [labels={}]".\
                 format(self.identifier, len(self.samples),
                 list(sorted(self.destinations)), self.labels)
-
-    def __gt__(self, other):
-        """Greater than object override"""
-        return self.identifier >  other.identifier
-
-    def __ge__(self, other):
-        """Greater equals object override"""
-        return self.identifier >= other.identifier
-
-    def __lt__(self, other):
-        """Less than object override"""
-        return self.identifier <  other.identifier
-
-    def __le__(self, other):
-        """Less equals object override"""
-        return self.identifier <= other.identifier
-
-    def __eq__(self, other):
-        """Equals object override"""
-        return self.identifier == other.identifier
-
-    def __hash__(self):
-        """Hash cluster object"""
-        return hash(self.identifier)
