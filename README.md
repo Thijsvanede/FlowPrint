@@ -45,3 +45,9 @@ python3 flow_changes.py -l <dataset> -k <folds> -f <change> -i <change> (--anoma
 --anomaly        for unseen app detection
 --recognition    for app recognition
 ```
+
+## Training size
+This experiments uses the recognition.py from App Recognition and anomaly.py from Unseen App Detection.
+The scripts in `experiments/training_size/` automatically run the aforementioned scripts with different number of apps.
+
+## 
