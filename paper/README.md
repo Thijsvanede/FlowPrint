@@ -104,9 +104,7 @@
 |----------------------------------------|-----------|
 | IP address - destination               |   0.246   |
 | TCP port - destination                 |   0.065   |
-|----------------------------------------|-----------|
 | **Average**                            | **0.155** |
-|----------------------------------------|-----------|
 | TLS server hello - extensions          |   0.107   |
 | TLS server hello - session             |   0.089   |
 | TLS server hello - ciphersuites        |   0.077   |
