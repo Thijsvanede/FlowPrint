@@ -166,9 +166,12 @@ class FingerprintGenerator(object):
         for fingerprint in sorted(fingerprints):
             for destination in fingerprint:
                 mapping_fingerprints[destination] = fingerprint
+
         # Apply mapping
         prediction = np.array([
-            mapping_fingerprints.get(d, Fingerprint()) for d in destinations
+            mapping_fingerprints.get(x.destination(),
+            mapping_fingerprints.get(x.certificate(),
+            Fingerprint())) for x in X
         ])
 
         ####################################################################
@@ -346,7 +349,7 @@ class FingerprintGenerator(object):
         # Loop over all fingerprints
         for fp in fingerprints:
             # Get fingerprint length
-            length = len(fp.as_set())
+            length = len(fp)
             # Set fingerprint lengths
             lengths[length] = lengths.get(length, set()) | set([fp])
 
@@ -410,7 +413,7 @@ class FingerprintGenerator(object):
         # Loop over fingerprints
         for fp in fingerprints_train:
             # Extract keys
-            for key in fp.as_set():
+            for key in fp:
                 # Add fingerprint to each key
                 mapping_train[key] = mapping_train.get(key, set()) | set([fp])
 
@@ -427,7 +430,7 @@ class FingerprintGenerator(object):
             matches = set()
 
             # Loop over all keys of fingerprint
-            for key in fp.as_set():
+            for key in fp:
                 # Get possible fingerprints
                 matches |= mapping_train.get(key, set())
 
@@ -478,7 +481,7 @@ class FingerprintGenerator(object):
         # Loop over fingerprints
         for fp in fingerprints_train:
             # Extract keys
-            for key in fp.as_set():
+            for key in fp:
                 # Add fingerprint to each key
                 mapping_train[key] = mapping_train.get(key, set()) | set([fp])
 
@@ -495,7 +498,7 @@ class FingerprintGenerator(object):
             matches = set()
 
             # Loop over all keys of fingerprint
-            for key in fp.as_set():
+            for key in fp:
                 # Get possible fingerprints
                 matches |= mapping_train.get(key, set())
 
