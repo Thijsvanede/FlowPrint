@@ -274,7 +274,7 @@ class FingerprintGenerator(object):
         result = np.asarray(fingerprints)
 
         # Retrieve unique fingerprints
-        unique = set(fingerprints)
+        unique = sorted(set(fingerprints))
 
         ####################################################################
         #                Case 1: all fingerprints are equal                #
@@ -339,7 +339,7 @@ class FingerprintGenerator(object):
                 Fingerprints which may have a similarity score >= threshold
             """
         # Get unique fingerprints
-        fingerprints = set(fingerprints)
+        fingerprints = sorted(set(fingerprints))
 
         # Only compare fingerprints of similar lengths
         lengths = dict()
