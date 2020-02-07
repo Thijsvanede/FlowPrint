@@ -131,8 +131,6 @@ Data input (either --files or --read required):
     # Fit fingerprints
     flowprint.fit(X, y)
 
-    from fingerprint import Fingerprint
-
     # Run FlowPrint in given mode
     if args.detection:
         raise ValueError("Mode not implemented yet: Detection")
