@@ -88,20 +88,7 @@ class Fingerprint(frozenset):
     ########################################################################
 
     def __lt__(self, other):
-        return len(self) < len(other) or\
-                (len(self) == len(other) and self.n_flows < other.n_flows)
-
-    def __le__(self, other):
-        return len(self) < len(other) or\
-                (len(self) == len(other) and self.n_flows <= other.n_flows)
-
-    def __ge__(self, other):
-        return len(self) > len(other) or\
-                (len(self) == len(other) and self.n_flows >= other.n_flows)
-
-    def __gt__(self, other):
-        return len(self) > len(other) or\
-                (len(self) == len(other) and self.n_flows > other.n_flows)
+        return (len(self), self.n_flows) < (len(other), other.n_flows)
 
     def __eq__(self, other):
         """Equality method override."""
@@ -109,12 +96,8 @@ class Fingerprint(frozenset):
 
     def __hash__(self):
         """Hash method override."""
-        # If empty, return identity
-        if len(self) == 0:
-            return id(self)
         # Else return destination & certificate hash
-        return hash((frozenset(self.destinations),
-                     frozenset(self.certificates)))
+        return hash(self.as_set())
 
     ########################################################################
     #                        String representation                         #
