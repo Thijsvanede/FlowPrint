@@ -164,8 +164,6 @@ Data input (either --files or --read required):
 
         # Output to terminal
         else:
-            print("Terminal")
-            exit()
             # Output fingerprints
             for label, fingerprint in sorted(fingerprints.items()):
                 print("{}:".format(label))
