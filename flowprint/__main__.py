@@ -1,4 +1,5 @@
 import argparse
+import json
 import numpy as np
 
 from flowprint import FlowPrint
@@ -17,7 +18,7 @@ if __name__ == "__main__":
 
     # Output arguments
     group_output = parser.add_mutually_exclusive_group(required=False)
-    group_output.add_argument('--fingerprint', action='store_true', help="run FlowPrint in raw fingerprint generation mode (default)")
+    group_output.add_argument('--fingerprint', nargs='?', help="run FlowPrint in raw fingerprint generation mode (default)")
     group_output.add_argument('--detection'  , action='store_true', help="run FlowPrint in unseen app detection mode")
     group_output.add_argument('--recognition', action='store_true', help="run FlowPrint in app recognition mode")
 
@@ -47,7 +48,8 @@ Arguments:
   -h, --help                 show this help message and exit
 
 FlowPrint mode (select up to one):
-  --fingerprint              run in raw fingerprint generation mode (default)
+  --fingerprint [FILE]       run in raw fingerprint generation mode (default)
+                             outputs to json FILE or terminal if none specified
   --detection                run in unseen app detection mode
   --recognition              run in app recognition mode
 
@@ -129,8 +131,9 @@ Data input (either --files or --read required):
     # Fit fingerprints
     flowprint.fit(X, y)
 
-    # Run FlowPrint in given mode
+    from fingerprint import Fingerprint
 
+    # Run FlowPrint in given mode
     if args.detection:
         raise ValueError("Mode not implemented yet: Detection")
 
@@ -145,9 +148,28 @@ Data input (either --files or --read required):
             # Add fingerprints
             fingerprints[label] = fingerprints.get(label, []) + [fingerprint]
 
-        # Output fingerprints
-        for label, fingerprint in fingerprints.items():
-            print("{}:".format(label))
-            for fp in fingerprint:
-                print("    {}".format(fp))
-            print()
+        # Output to file
+        if args.fingerprint:
+            # Transform fingerprints to JSON format
+            for label, fps in fingerprints.items():
+                # Transform fingerprints to dictionary
+                fingerprints[label] = [fp.to_dict() for fp in fps]
+
+            # Dump fingerprints to JSON
+            with open(args.fingerprint, 'w') as outfile:
+                json.dump(fingerprints, outfile)
+
+            # Notify user fingerprints were saved
+            print("Fingerprints saved to {}".format(args.fingerprint))
+
+        # Output to terminal
+        else:
+            print("Terminal")
+            exit()
+            # Output fingerprints
+            for label, fingerprint in sorted(fingerprints.items()):
+                print("{}:".format(label))
+                for fp in sorted(fingerprint):
+                    # Get fingerprints as set
+                    print("    {}".format(fp))
+                print()
