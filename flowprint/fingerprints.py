@@ -346,7 +346,7 @@ class FingerprintGenerator(object):
         # Loop over all fingerprints
         for fp in fingerprints:
             # Get fingerprint length
-            length = len(fp.destinations) + len(fp.certificates)
+            length = len(fp.as_set())
             # Set fingerprint lengths
             lengths[length] = lengths.get(length, set()) | set([fp])
 
@@ -410,7 +410,7 @@ class FingerprintGenerator(object):
         # Loop over fingerprints
         for fp in fingerprints_train:
             # Extract keys
-            for key in fp.destinations | fp.certificates:
+            for key in fp.as_set():
                 # Add fingerprint to each key
                 mapping_train[key] = mapping_train.get(key, set()) | set([fp])
 
@@ -427,7 +427,7 @@ class FingerprintGenerator(object):
             matches = set()
 
             # Loop over all keys of fingerprint
-            for key in fp.destinations | fp.certificates:
+            for key in fp.as_set():
                 # Get possible fingerprints
                 matches |= mapping_train.get(key, set())
 
@@ -478,7 +478,7 @@ class FingerprintGenerator(object):
         # Loop over fingerprints
         for fp in fingerprints_train:
             # Extract keys
-            for key in fp.destinations | fp.certificates:
+            for key in fp.as_set():
                 # Add fingerprint to each key
                 mapping_train[key] = mapping_train.get(key, set()) | set([fp])
 
@@ -495,7 +495,7 @@ class FingerprintGenerator(object):
             matches = set()
 
             # Loop over all keys of fingerprint
-            for key in fp.destinations | fp.certificates:
+            for key in fp.as_set():
                 # Get possible fingerprints
                 matches |= mapping_train.get(key, set())
 

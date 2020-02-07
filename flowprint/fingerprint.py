@@ -27,40 +27,6 @@ class Fingerprint(frozenset):
     ########################################################################
 
     @property
-    def destinations(self):
-        """Get all destinations related to this Fingerprint."""
-        # Only compute destinations first time
-        if self._destinations is None:
-            # Initialise destinations
-            destinations = set()
-            # Loop over all clusters
-            for cluster in self:
-                destinations |= cluster.destinations
-
-            # Cache destinations
-            self._destinations = destinations
-
-        # Return cached destinations
-        return self._destinations
-
-    @property
-    def certificates(self):
-        """Get all certificates related to this Fingerprint."""
-        # Only compute certificates first time
-        if self._certificates is None:
-            # Initialise certificates
-            certificates = set()
-            # Loop over all clusters
-            for cluster in self:
-                certificates |= cluster.certificates
-
-            # Cache certificates
-            self._certificates = certificates
-
-        # Return cached certificates
-        return self._certificates
-
-    @property
     def n_flows(self):
         """Get number of samples related to this Fingerprint."""
         # Only compute number of samples first time
@@ -80,8 +46,17 @@ class Fingerprint(frozenset):
     ########################################################################
 
     def as_set(self):
+        """Get all destinations related to this Fingerprint."""
+        # Initialise destinations and certificates
+        destinations = set()
+        certificates = set()
+        # Loop over all clusters
+        for cluster in self:
+            destinations |= cluster.destinations
+            certificates |= cluster.certificates
+
         """Get fingerprint as a set."""
-        return frozenset(self.certificates | self.destinations)
+        return frozenset(certificates | destinations)
 
     ########################################################################
     #                              Overrides                               #
