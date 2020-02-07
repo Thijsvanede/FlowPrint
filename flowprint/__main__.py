@@ -29,11 +29,14 @@ if __name__ == "__main__":
     group_flowprint.add_argument('-s', '--similarity' , type=float, default=0.9, help="similarity threshold        (default=0.9)")
     group_flowprint.add_argument('-w', '--window'     , type=float, default=30 , help="window size in seconds      (default=30)")
 
-    # Data agruments
+    # Flow data input/output agruments
     group_data_in = parser.add_argument_group("Flow data input/output")
     group_data_in.add_argument('-p', '--pcaps', nargs='+', help="path to pcap(ng) files to run through FlowPrint")
     group_data_in.add_argument('-r', '--read' , nargs='+', help="read preprocessed data from given files")
     group_data_in.add_argument('-t', '--write',            help="write preprocessed data to given file")
+
+    # Train/test input arguments
+    group_data_fps = parser.add_argument_group("")
 
     # Set help message
     parser.format_help = lambda: \
@@ -128,17 +131,26 @@ Flow data input/output (either --pcaps or --read required):
         similarity  = args.similarity
     )
 
-    # Fit fingerprints
-    flowprint.fit(X, y)
-
-    # Run FlowPrint in given mode
+    ########################################################################
+    #                            Detection mode                            #
+    ########################################################################
     if args.detection:
         raise ValueError("Mode not implemented yet: Detection")
 
+    ########################################################################
+    #                           Recognition mode                           #
+    ########################################################################
     elif args.recognition:
         raise ValueError("Mode not implemented yet: Recognition")
 
+
+    ########################################################################
+    #                           Fingerprint mode                           #
+    ########################################################################
     else:
+        # Fit fingerprints
+        flowprint.fit(X, y)
+
         # Make dictionary of label -> fingerprints
         fingerprints = dict()
         # Fill fingerprints

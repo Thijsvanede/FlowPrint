@@ -54,8 +54,8 @@ class Fingerprint(frozenset):
                 Fingerprint as dictionary, may be used for JSON export
             """
         return {
-            'certificates': [     x  for x in self if not isinstance(x, tuple)],
-            'destinations': [list(x) for x in self if     isinstance(x, tuple)],
+            'certificates': sorted([     x  for x in self if not isinstance(x, tuple)]),
+            'destinations': sorted([list(x) for x in self if     isinstance(x, tuple)]),
             'n_flows': self.n_flows,
         }
 
