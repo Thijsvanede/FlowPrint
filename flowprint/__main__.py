@@ -30,7 +30,7 @@ if __name__ == "__main__":
     group_flowprint.add_argument('-w', '--window'     , type=float, default=30 , help="window size in seconds      (default=30)")
 
     # Data agruments
-    group_data_in = parser.add_argument_group("Data input")
+    group_data_in = parser.add_argument_group("Flow data input/output")
     group_data_in.add_argument('-p', '--pcaps', nargs='+', help="path to pcap(ng) files to run through FlowPrint")
     group_data_in.add_argument('-r', '--read' , nargs='+', help="read preprocessed data from given files")
     group_data_in.add_argument('-t', '--write',            help="write preprocessed data to given file")
@@ -38,7 +38,7 @@ if __name__ == "__main__":
     # Set help message
     parser.format_help = lambda: \
 """usage: {} [-h]
-                    (--detection | --fingerprint | --recognition)
+                    (--detection | --fingerprint [FILE] | --recognition)
                     [-b BATCH] [-c CORRELATION], [-s SIMILARITY], [-w WINDOW]
                     [-p PCAPS...] [-rp READ...] [-wp WRITE]
 
@@ -49,9 +49,9 @@ Arguments:
 
 FlowPrint mode (select up to one):
   --fingerprint [FILE]       run in raw fingerprint generation mode (default)
-                             outputs to json FILE or terminal if none specified
-  --detection                run in unseen app detection mode
-  --recognition              run in app recognition mode
+                             outputs to terminal or json FILE
+  --detection                run in unseen app detection mode (Unimplemented)
+  --recognition              run in app recognition mode      (Unimplemented)
 
 FlowPrint parameters:
   -b, --batch       FLOAT    batch size in seconds       (default=300)
@@ -59,7 +59,7 @@ FlowPrint parameters:
   -s, --similarity  FLOAT    similarity threshold        (default=0.9)
   -w, --window      FLOAT    window size in seconds      (default=30)
 
-Data input (either --files or --read required):
+Flow data input/output (either --pcaps or --read required):
   -p, --pcaps PATHS...       path to pcap(ng) files to run through FlowPrint
   -r, --read  PATHS...       read preprocessed data from given files
   -t, --write PATH           write preprocessed data to given file
