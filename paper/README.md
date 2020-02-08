@@ -123,3 +123,17 @@
 | TLS certificate - version              |   0.020   |
 | **Average**                            | **0.134** |
 | **Total Average**                      | **0.142** |
+
+#### Adjusted Mutual Information of source features per TCP/UDP flow
+| Feature                         | AMI       |
+|---------------------------------|-----------|
+| IP address - source             |   0.434   |
+| TCP port - source               |   0.173   |
+| **Average**                     | **0.304** |
+| TLS client hello - extensions   |   0.177   |
+| TLS client hello - ciphersuites |   0.176   |
+| TLS client hello - session      |   0.147   |
+| TLS client hello - version      |   0.065   |
+| TLS client hello - compression  |   0.023   |
+| **Average**                     | **0.118** |
+| **Total Average**               | **0.171** |
