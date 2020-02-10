@@ -1,7 +1,9 @@
 from cluster import Cluster
 from collections import Counter
+from fingerprint import Fingerprint
 from fingerprints import FingerprintGenerator
 import copy
+import json
 import numpy as np
 
 class FlowPrint(object):
@@ -190,6 +192,67 @@ class FlowPrint(object):
             TODO"""
         # Call fit and predict respectively
         return self.fit(X, y).predict_anomalous(X, y)
+
+    ########################################################################
+    #                             I/O methods                              #
+    ########################################################################
+
+    def store(self, file, fingerprints=None):
+        """Store fingerprints to file.
+
+            Parameters
+            ----------
+            file : string
+                File in which to store flowprint fingerprints.
+
+            fingerprints : iterable of Fingerprint (optional)
+                If None export fingerprints from fitted FlowPrint object,
+                otherwise, export given fingerprints.
+            """
+        # Prepare output as dictionary
+        output = {
+            'batch'       : self.batch,
+            'window'      : self.window,
+            'correlation' : self.correlation,
+            'similarity'  : self.similarity,
+            'threshold'   : self.threshold,
+            'fingerprints': [[fp.to_dict(), self.fingerprints.get(fp, file)]
+                             for fp in fingerprints or self.fingerprints]
+        }
+
+        # Open output file
+        with open(file, 'w') as outfile:
+            # Dump fingerprints to outfile
+            json.dump(output, outfile)
+
+    def load(self, file):
+        """Load fingerprints from file.
+
+            Parameters
+            ----------
+            file : string
+                File from which to load fingerprints.
+
+            Returns
+            -------
+            result : list of Fingerprint
+                Fingerprints imported from file.
+            """
+        # Open input file
+        with open(file, 'r') as infile:
+            # Load fingerprints
+            data = json.load(infile)
+            # Set FlowPrint values
+            self.batch        = data.get('batch'      , self.batch)
+            self.window       = data.get('window'     , self.window)
+            self.correlation  = data.get('correlation', self.correlation)
+            self.similarity   = data.get('similarity' , self.similarity)
+            self.threshold    = data.get('threshold'  , self.threshold)
+            # Load fingerprints
+            self.fingerprints = {Fingerprint().from_dict(fp): label
+                                 for fp, label in data.get('fingerprints')}
+        # Return self
+        return self
 
 
     ########################################################################
