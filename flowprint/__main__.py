@@ -112,6 +112,7 @@ def fingerprint(flowprint, args):
 
 def recognition(flowprint, train, test):
     """Execute Flowprint in recognition mode"""
+    # TODO cleanup dramatically
     train_fps = dict()
     for k, val in train.items():
         for v in val:
@@ -130,10 +131,30 @@ def recognition(flowprint, train, test):
                     best_score = v.compare(fp)
                     best_match = label
             print("    {} --> {}".format(v, best_match))
+    raise ValueError("Warning, should be implemented properly")
 
 def detection(flowprint, train, test):
     """Execute Flowprint in detection mode"""
-    raise ValueError("Mode not implemented yet: Detection")
+    # TODO cleanup dramatically
+    train_fps = dict()
+    for k, val in train.items():
+        for v in val:
+            if v in train_fps:
+                train_fps[v] = train_fps[v] + [k]
+            else:
+                train_fps[v] = [k]
+
+    for k, val in test.items():
+        print(k)
+        for v in val:
+            for fp, label in train_fps.items():
+                if v.compare(fp) > 0.1:
+                    print("    {} --> {}".format(v, "matches"))
+                    break
+            else:
+                print("    {} --> {}".format(v, "is anomalous"))
+        raise ValueError("Warning, should be implemented properly")
+
 
 
 
