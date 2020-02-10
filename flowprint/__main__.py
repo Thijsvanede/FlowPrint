@@ -166,8 +166,8 @@ if __name__ == "__main__":
     group_data_in.add_argument('-p', '--pcaps' ,             nargs='+' , help="path to pcap(ng) files to run through FlowPrint")
     group_data_in.add_argument('-r', '--read'  ,             nargs='+' , help="read preprocessed data from given files")
     group_data_in.add_argument('-o', '--write' ,                         help="write preprocessed data to given file")
-    group_data_in.add_argument('-l', '--split' , type=float, default= 0, help="split input into train/test by given fraction (default=0)")
-    group_data_in.add_argument('-a', '--random', type=int  , default=42, help="random state to use for split                 (default=42)")
+    group_data_in.add_argument('-l', '--split' , type=float, default= 0, help="fraction of data to select for testing (default= 0)")
+    group_data_in.add_argument('-a', '--random', type=int  , default=42, help="random state to use for split          (default=42)")
 
     # Train/test input arguments
     group_data_fps = parser.add_argument_group("Train/test input")
@@ -202,8 +202,8 @@ Flow data input/output (either --pcaps or --read required):
   -p, --pcaps  PATHS...      path to pcap(ng) files to run through FlowPrint
   -r, --read   PATHS...      read preprocessed data from given files
   -o, --write  PATH          write preprocessed data to given file
-  -i, --split  FLOAT         split into train/test by fraction (default= 0)
-  -r, --random FLOAT         random state to use for split     (default=42)
+  -i, --split  FLOAT         fraction of data to select for testing (default= 0)
+  -r, --random FLOAT         random state to use for split          (default=42)
 
 Train/test input (for --detection/--recognition):
   -t, --train PATHS...       path to json files containing training fingerprints
