@@ -225,7 +225,7 @@ class FlowPrint(object):
             # Dump fingerprints to outfile
             json.dump(output, outfile)
 
-    def load(self, *files, store=False):
+    def load(self, *files, parameters=False):
         """Load fingerprints from files.
 
             Parameters
@@ -233,7 +233,7 @@ class FlowPrint(object):
             file : string
                 Files from which to load fingerprints.
 
-            store : boolean, default=False
+            parameters : boolean, default=False
                 If True, also update FlowPrint parameters from file
 
             Returns
@@ -248,8 +248,8 @@ class FlowPrint(object):
                 # Load fingerprints
                 data = json.load(infile)
 
-                # Store values if necessary
-                if store:
+                # Store parameters if necessary
+                if parameters:
                     self.batch       = data.get('batch'      , self.batch)
                     self.window      = data.get('window'     , self.window)
                     self.correlation = data.get('correlation', self.correlation)
