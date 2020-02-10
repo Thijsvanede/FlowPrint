@@ -225,32 +225,46 @@ class FlowPrint(object):
             # Dump fingerprints to outfile
             json.dump(output, outfile)
 
-    def load(self, file):
-        """Load fingerprints from file.
+    def load(self, *files, store=False):
+        """Load fingerprints from files.
 
             Parameters
             ----------
             file : string
-                File from which to load fingerprints.
+                Files from which to load fingerprints.
+
+            store : boolean, default=False
+                If True, also update FlowPrint parameters from file
 
             Returns
             -------
-            result : list of Fingerprint
+            result : dict of Fingerprint -> label
                 Fingerprints imported from file.
             """
-        # Open input file
-        with open(file, 'r') as infile:
-            # Load fingerprints
-            data = json.load(infile)
-            # Set FlowPrint values
-            self.batch        = data.get('batch'      , self.batch)
-            self.window       = data.get('window'     , self.window)
-            self.correlation  = data.get('correlation', self.correlation)
-            self.similarity   = data.get('similarity' , self.similarity)
-            self.threshold    = data.get('threshold'  , self.threshold)
-            # Load fingerprints
-            self.fingerprints = {Fingerprint().from_dict(fp): label
-                                 for fp, label in data.get('fingerprints')}
+        # Loop over all files
+        for file in files:
+            # Open input file
+            with open(file, 'r') as infile:
+                # Load fingerprints
+                data = json.load(infile)
+
+                # Store values if necessary
+                if store:
+                    self.batch       = data.get('batch'      , self.batch)
+                    self.window      = data.get('window'     , self.window)
+                    self.correlation = data.get('correlation', self.correlation)
+                    self.similarity  = data.get('similarity' , self.similarity)
+                    self.threshold   = data.get('threshold'  , self.threshold)
+
+                # Add fingerprints
+                for fp, label in data.get('fingerprints'):
+                    # Transform json to Fingerprint
+                    fp = Fingerprint().from_dict(fp)
+                    # Get label
+                    label = self.fingerprints.get(fp, set()) | set([label])
+                    # Set fingerprint
+                    self.fingerprints[fp] = label
+
         # Return self
         return self
 
