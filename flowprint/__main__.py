@@ -252,15 +252,18 @@ Train/test input (for --detection/--recognition):
         #                         Show result                          #
         ################################################################
 
-        # Loop over all fingerprints
         y_current = None
-        for fp, y_test_, y_pred_ in sorted(zip(X_test, y_test, prediction), key=lambda x: list(x[1])):
+        # Loop over all fingerprints sorted by input label
+        for fp, y_test_, y_pred_ in sorted(zip(X_test, y_test, prediction),
+                                            key=lambda x: list(x[1])):
+            # Get label of fingerprint
             y_test_ = list(y_test_)[0]
+            # Print label if new one is found
             if y_test_ != y_current:
                 print('\n',y_test_)
                 y_current = y_test_
 
+            # Output result
             if args.recognition:
                 y_pred_ = list(y_pred_)[0]
-
             print("    {} --> {}".format(fp, y_pred_))
