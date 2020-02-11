@@ -44,7 +44,7 @@ Train/test input (for --detection/--recognition):
   -e, --test  PATHS...       path to json files containing testing fingerprints
 ```
 
-To run FlowPrint we require three steps:
+Run FlowPrint requires three steps:
  1. Preprocessing: transform `.pcap` files to `flows` that FlowPrint can interpret.
 ```
 $ python3 flowprint --pcaps <data.pcap> --write <flows.p>
