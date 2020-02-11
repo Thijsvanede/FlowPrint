@@ -1,6 +1,3 @@
-from cross_correlation_graph import CrossCorrelationGraph
-from cluster                 import Cluster
-from fingerprint             import Fingerprint
 from itertools               import combinations
 import numpy as np
 

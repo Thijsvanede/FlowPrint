@@ -1,6 +1,4 @@
 from collections import Counter
-from fingerprint import Fingerprint
-from fingerprints import FingerprintGenerator
 import json
 import numpy as np
 
