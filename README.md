@@ -1,10 +1,37 @@
-# FlowPrint - In progress
+# FlowPrint
 This repository contains the code for FlowPrint by the authors of the NDSS FlowPrint [1] paper.
+Please [cite](#References) FlowPrint when using it in academic publications.
 This `master` branch provides FlowPrint as an out of the box tool.
 For the original experiments from the paper, please checkout the `NDSS` branch.
 
+## Introduction
+FlowPrint introduces a semi-supervised approach for fingerprinting mobile apps from (encrypted) network traffic.
+We automatically find temporal correlations among destination-related features of network traffic and use these correlations to generate app fingerprints.
+These fingerprints can later be reused to recognize known apps or to detect previously unseen apps.
+The main contribution of this work is to create network fingerprints without prior knowledge of the apps running in the network.
+
 ## Installation
-TODO
+The easiest way to install FlowPrint is using pip
+```
+pip install flowprint
+```
+
+### Manually
+If you would like to install FlowPrint manually, please make sure you have installed the required dependencies.
+
+#### Dependencies
+This code is written in Python3 and depends on the following libraries:
+ * Cryptography
+ * Matplotlib
+ * NetworkX
+ * Numpy
+ * Pyshark
+ * Scikit-learn
+
+To install these use the following command
+```
+pip install -U cryptography matplotlib networkx numpy pyshark scikit-learn
+```
 
 ## Usage
 ```
