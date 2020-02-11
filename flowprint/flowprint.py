@@ -129,12 +129,81 @@ class FlowPrint(object):
         # Return self
         return self
 
-    def predict(self, X, y=None, threshold=None):
-        """Wrapper for predict anomaly"""
-        return self.predict_anomaly(X, y, threshold)
+    def predict(self, X, y=None, default='common'):
+        """Find closest fingerprint to trained fingerprints
+
+            Parameters
+            ----------
+            X : Array-like of Fingerprint of shape=(n_fingerprints,)
+                Fingerprints to compare against training set.
+
+            y : ignored
+
+            default : 'common'|'largest'|other, default='common'
+                Default to this strategy if no match is found
+                 - 'common' : return the fingerprint with most flows
+                 - 'largest': return the largest fingerprint
+                 - other: return <other> as match, e.g. Fingerprint()/None
+
+            Returns
+            -------
+            result : np.array of shape=(n_fingerprints,)
+                Closest matching fingerprints to original.
+                If no match is found, fall back on default
+            """
+        # Initialise result
+        result = np.zeros(len(X), dtype=object)
+        # Set default strategy
+        if default == 'common':
+            default = max(self.fingerprints, key=lambda x: x.n_flows)
+        elif default == 'largest':
+            default = max(self.fingerprints, key=lambda x: len(x))
+
+        # Transform Fingerprints into quick lookup dictionary
+        lookup = dict()
+        # Loop over trained fingerprints
+        for fingerprint in self.fingerprints:
+            # For all destination in fingerprint
+            for dst in fingerprint:
+                # Add corresponding fingerprints
+                lookup[dst] = lookup.get(dst, set()) | set([fingerprint])
+
+        # Loop over all fingerprints in X
+        for i, fingerprint in enumerate(X):
+            # Get all matches corresponding to fingerprint
+            matches = list(set().union(*[lookup.get(x, set()) for x in fingerprint]))
+            # Default strategy if no match
+            if not matches:
+                result[i] = default
+            else:
+                # Find highest match between possible matches
+                scores = np.asarray([fingerprint.compare(m) for m in matches])
+                # Set maximum score
+                result[i] = matches[scores.argmax()]
+
+        # Return result
+        return result
+
+    def recognize(self, X, y=None):
+        """Return labels corresponding to closest matching fingerprints
+
+            Parameters
+            ----------
+            X : Array-like of Fingerprint of shape=(n_fingerprints,)
+                Fingerprints to compare against training set.
+
+            y : ignored
+
+            Returns
+            -------
+            result : np.array of shape=(n_fingerprints,)
+                Label of closest matching fingerprints to original
+            """
+        # Perform predict and return corresponding fingerprints
+        return np.asarray([self.fingerprints.get(x) for x in self.predict(X)])
 
 
-    def predict_anomaly(self, X, y=None, threshold=None):
+    def detect(self, X, y=None, threshold=None):
         """Predict whether samples of X are anomalous or not.
 
             Parameters
@@ -146,52 +215,19 @@ class FlowPrint(object):
 
             threshold : float, default=None
                 Minimum required threshold to consider point benign.
+                If None is given, use FlowPrint default
 
             Returns
             -------
             result : np.array of shape=(n_samples,)
                 Prediction of samples in X: +1 if benign, -1 if anomalous.
             """
-        # Transform X and y to numpy arrays
-        X = np.asarray(X)
-
-        # Create fingerprints from X
-        fingerprints = self.fingerprinter.fit_predict(X)
-        fingerprints = np.asarray([fp.as_set() for fp in fingerprints])
-
-        # Compute anomalies from fingerprints and return
-        return self.predict_anomaly_fingerprints(fingerprints, X.shape[0],
-            threshold=threshold or self.threshold)
-
-
-    def predict_anomaly_fingerprints(self, fingerprints, size, threshold=None):
-        """"""
-        # Compute distance of each fingerprint
-        distance, X_unique, Y_unique = self.jaccard(fingerprints,
-                                          list(self.fingerprints.keys()))
-        # Lookup indices of X
-        X_mapping = {x: i for i, x in enumerate(X_unique)}
-        # Check which fingerprints are benign
-        benign = np.any(distance >= (threshold or self.threshold), axis=1)
-
-        # Initialise result
-        result = np.zeros(size, dtype=int) - 1
-
-        # Loop over all fingerprints
-        for i, fingerprint in enumerate(fingerprints):
-            # Add fingerprint prediction
-            result[i] = 1 if benign[X_mapping.get(fingerprint)] else -1
-
-        # Return result
-        return result
-
-
-    def fit_predict_anomaly(self, X, y=None):
-        """Fit FlowPrint with given flows and predict the same flows.
-
-            TODO"""
-        # Call fit and predict respectively
-        return self.fit(X, y).predict_anomalous(X, y)
+        # Get best match for each fingerprint
+        prediction = self.predict(X, default=Fingerprint())
+        # Compute match score between each best match
+        prediction = np.asarray([x.compare(fp) for x, fp in zip(X, prediction)])
+        # Return whether matching score is high enough
+        return (prediction >= (threshold or self.threshold)) * 2 - 1
 
     ########################################################################
     #                             I/O methods                              #
