@@ -225,13 +225,16 @@ class FlowPrint(object):
             # Dump fingerprints to outfile
             json.dump(output, outfile)
 
-    def load(self, *files, parameters=False):
+    def load(self, *files, store=True, parameters=False):
         """Load fingerprints from files.
 
             Parameters
             ----------
             file : string
                 Files from which to load fingerprints.
+
+            store : boolean, default=True
+                If True, store fingerprints in FlowPrint object
 
             parameters : boolean, default=False
                 If True, also update FlowPrint parameters from file
@@ -241,6 +244,9 @@ class FlowPrint(object):
             result : dict of Fingerprint -> label
                 Fingerprints imported from file.
             """
+        # Initialise fingerprints
+        fingerprints = dict()
+
         # Loop over all files
         for file in files:
             # Open input file
@@ -261,12 +267,17 @@ class FlowPrint(object):
                     # Transform json to Fingerprint
                     fp = Fingerprint().from_dict(fp)
                     # Get label
-                    label = self.fingerprints.get(fp, set()) | set([label])
+                    label = fingerprints.get(fp, set()) | set([label])
                     # Set fingerprint
-                    self.fingerprints[fp] = label
+                    fingerprints[fp] = label
 
-        # Return self
-        return self
+        # Store fingerprints if necessary
+        if store:
+            for k, v in fingerprints.items():
+                self.fingerprints[k] = self.fingerprints.get(k, set()) | v
+
+        # Return fingerprints
+        return fingerprints
 
 
     ########################################################################
