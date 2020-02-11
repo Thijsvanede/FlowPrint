@@ -114,34 +114,34 @@ if __name__ == "__main__":
 
     # Output arguments
     group_output = parser.add_mutually_exclusive_group(required=False)
-    group_output.add_argument('--fingerprint', nargs='?', help="run FlowPrint in raw fingerprint generation mode (default)")
-    group_output.add_argument('--detection'  , action='store_true', help="run FlowPrint in unseen app detection mode")
-    group_output.add_argument('--recognition', action='store_true', help="run FlowPrint in app recognition mode")
+    group_output.add_argument('--fingerprint', type=str  , nargs='?')
+    group_output.add_argument('--detection'  , type=float           )
+    group_output.add_argument('--recognition', action='store_true'  )
 
     # FlowPrint parameters
     group_flowprint = parser.add_argument_group("FlowPrint parameters")
-    group_flowprint.add_argument('-b', '--batch'      , type=float, default=300, help="batch size in seconds       (default=300)")
-    group_flowprint.add_argument('-c', '--correlation', type=float, default=0.1, help="cross-correlation threshold (default=0.1)")
-    group_flowprint.add_argument('-s', '--similarity' , type=float, default=0.9, help="similarity threshold        (default=0.9)")
-    group_flowprint.add_argument('-w', '--window'     , type=float, default=30 , help="window size in seconds      (default=30)")
+    group_flowprint.add_argument('-b', '--batch'      , type=float, default=300)
+    group_flowprint.add_argument('-c', '--correlation', type=float, default=0.1)
+    group_flowprint.add_argument('-s', '--similarity' , type=float, default=0.9)
+    group_flowprint.add_argument('-w', '--window'     , type=float, default=30 )
 
     # Flow data input/output agruments
     group_data_in = parser.add_argument_group("Flow data input/output")
-    group_data_in.add_argument('-p', '--pcaps' ,             nargs='+' , help="path to pcap(ng) files to run through FlowPrint")
-    group_data_in.add_argument('-r', '--read'  ,             nargs='+' , help="read preprocessed data from given files")
-    group_data_in.add_argument('-o', '--write' ,                         help="write preprocessed data to given file")
-    group_data_in.add_argument('-l', '--split' , type=float, default= 0, help="fraction of data to select for testing (default= 0)")
-    group_data_in.add_argument('-a', '--random', type=int  , default=42, help="random state to use for split          (default=42)")
+    group_data_in.add_argument('-p', '--pcaps' , type=str,   nargs='+' )
+    group_data_in.add_argument('-r', '--read'  , type=str,   nargs='+' )
+    group_data_in.add_argument('-o', '--write' , type=str,             )
+    group_data_in.add_argument('-l', '--split' , type=float, default= 0)
+    group_data_in.add_argument('-a', '--random', type=int  , default=42)
 
     # Train/test input arguments
     group_data_fps = parser.add_argument_group("Train/test input")
-    group_data_fps.add_argument('-t', '--train', nargs='+', help="fingerprints used for training")
-    group_data_fps.add_argument('-e', '--test' , nargs='+', help="fingerprints used for testing")
+    group_data_fps.add_argument('-t', '--train', type=str, nargs='+')
+    group_data_fps.add_argument('-e', '--test' , type=str, nargs='+')
 
     # Set help message
     parser.format_help = lambda: \
 """usage: {} [-h]
-                    (--detection | --fingerprint [FILE] | --recognition)
+                    (--detection [FLOAT] | --fingerprint [FILE] | --recognition)
                     [-b BATCH] [-c CORRELATION], [-s SIMILARITY], [-w WINDOW]
                     [-p PCAPS...] [-rp READ...] [-wp WRITE]
 
@@ -153,7 +153,8 @@ Arguments:
 FlowPrint mode (select up to one):
   --fingerprint [FILE]       run in raw fingerprint generation mode (default)
                              outputs to terminal or json FILE
-  --detection                run in unseen app detection mode
+  --detection   FLOAT        run in unseen app detection mode with given
+                             FLOAT threshold
   --recognition              run in app recognition mode
 
 FlowPrint parameters:
@@ -167,7 +168,7 @@ Flow data input/output (either --pcaps or --read required):
   -r, --read   PATHS...      read preprocessed data from given files
   -o, --write  PATH          write preprocessed data to given file
   -i, --split  FLOAT         fraction of data to select for testing (default= 0)
-  -r, --random FLOAT         random state to use for split          (default=42)
+  -a, --random FLOAT         random state to use for split          (default=42)
 
 Train/test input (for --detection/--recognition):
   -t, --train PATHS...       path to json files containing training fingerprints
@@ -241,7 +242,7 @@ Train/test input (for --detection/--recognition):
         ################################################################
         # Detection mode
         if args.detection:
-            prediction = flowprint.detect(X_test)
+            prediction = flowprint.detect(X_test, threshold=args.detection)
 
         # Recognition mode
         elif args.recognition:
@@ -256,8 +257,10 @@ Train/test input (for --detection/--recognition):
         for fp, y_test_, y_pred_ in sorted(zip(X_test, y_test, prediction), key=lambda x: list(x[1])):
             y_test_ = list(y_test_)[0]
             if y_test_ != y_current:
-                print(y_test_)
+                print('\n',y_test_)
                 y_current = y_test_
 
-            y_pred_ = list(y_pred_)[0]
-            print("    {} --{}--> {}".format(fp, y_test_ == y_pred_, y_pred_))
+            if args.recognition:
+                y_pred_ = list(y_pred_)[0]
+
+            print("    {} --> {}".format(fp, y_pred_))
