@@ -1,8 +1,6 @@
-from cluster import Cluster
 from collections import Counter
 from fingerprint import Fingerprint
 from fingerprints import FingerprintGenerator
-import copy
 import json
 import numpy as np
 
@@ -314,88 +312,3 @@ class FlowPrint(object):
 
         # Return fingerprints
         return fingerprints
-
-
-    ########################################################################
-    #                          Comparison methods                          #
-    ########################################################################
-
-    def jaccard(self, X, Y=None):
-        """Compare fingerprints using the Jaccard distance.
-
-            Parameters
-            ----------
-            X : np.array of shape=(n_samples,)
-                Fingerprints used to compute the jaccard knn with Y (if given)
-                or self, if Y not given.
-
-            Y : np.array of shape=(n_samples,), optional
-                Fingerprints used to compute the jaccard knn with X if given
-
-            Returns
-            -------
-            scores : np.array of shape=(n_unique_x, n_unique_y)
-                Similarity scores of fingerprints
-
-            x_unique : np.array of shape=(n_unique_x,)
-                Unique samples in X indexed same as scores
-
-            y_unique : np.array of shape=(n_unique_y,)
-                Unique samples in Y indexed same as scores
-            """
-        # Get both inputs as numpy array
-        X = np.asarray(X)
-        Y = np.asarray(Y) if Y is not None else X
-
-        # Get unique inputs
-        X_unique = np.asarray(list(sorted(set(X))))
-        Y_unique = np.asarray(list(sorted(set(Y))))
-
-        # Get mapping of destination -> fingerprints
-        mapping = dict()
-        # Loop over all training fingerprints
-        for j, fingerprint in enumerate(Y_unique):
-            # Loop over all destinations in fingerprint
-            for destination in fingerprint:
-                # Get fingerprint set
-                fps = mapping.get(destination, set()) | set([(j, fingerprint)])
-                # Add fingerprint to destination
-                mapping[destination] = fps
-
-        # Initialise result
-        result = np.zeros((X_unique.shape[0], Y_unique.shape[0]), dtype=float)
-
-        # Loop over all testing fingerprints
-        for i, fingerprint in enumerate(X_unique):
-            # Initialise partial matches
-            matches = set()
-            # Find partial matches
-            for destination in fingerprint:
-                matches |= mapping.get(destination, set())
-
-            # Compute score per partial match
-            for j, match in matches:
-                # Compute fingerprint matching score
-                score = len(fingerprint & match) / max(len(fingerprint | match), 1)
-                # Assign score to result
-                result[i, j] = score
-
-        # Return result
-        return result, X_unique, Y_unique
-
-    ########################################################################
-    #                             Copy method                              #
-    ########################################################################
-
-    def copy(self):
-        """Create copy of self."""
-        # Create new flowprint instance
-        result = FlowPrint(self.batch, self.window, self.correlation,
-                         self.similarity)
-
-        # Set fingerprints
-        for fingerprint, label in self.fingerprints.items():
-            result.fingerprints[copy.deepcopy(fingerprint)] = copy.deepcopy(label)
-
-        # Return result
-        return result
