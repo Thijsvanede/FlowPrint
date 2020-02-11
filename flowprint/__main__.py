@@ -81,18 +81,11 @@ def fingerprint(flowprint, args):
         if args.fingerprint:
             # Set output file
             outfile, ext = os.path.splitext(args.fingerprint)
-            outfile_ = "{}{}{}".format(outfile, '.' + type if type else type, ext)
-            # Transform fingerprints to JSON format
-            for label, fps in fingerprints.items():
-                # Transform fingerprints to dictionary
-                fingerprints[label] = [fp.to_dict() for fp in fps]
-
-            # Dump fingerprints to JSON
-            with open(outfile_, 'w') as outfile:
-                json.dump(fingerprints, outfile)
-
+            outfile = "{}{}{}".format(outfile, '.' + type if type else type, ext)
+            # Store fingerprints
+            flowprint.store(outfile)
             # Notify user fingerprints were saved
-            print("Fingerprints saved to {}".format(outfile_))
+            print("Fingerprints saved to {}".format(outfile))
 
         # Output to terminal
         else:
@@ -110,50 +103,31 @@ def fingerprint(flowprint, args):
 
 
 
-def recognition(flowprint, train, test):
+def recognition(flowprint, test):
     """Execute Flowprint in recognition mode"""
     # TODO cleanup dramatically
-    train_fps = dict()
-    for k, val in train.items():
-        for v in val:
-            if v in train_fps:
-                train_fps[v] = train_fps[v] + [k]
-            else:
-                train_fps[v] = [k]
 
-    for k, val in test.items():
-        print(k)
-        for v in val:
-            best_match = None
-            best_score = 0
-            for fp, label in train_fps.items():
-                if v.compare(fp) > best_score:
-                    best_score = v.compare(fp)
-                    best_match = label
-            print("    {} --> {}".format(v, best_match))
+    for k, v in sorted(test.items(), key=lambda x: list(x[1])[0]):
+        best_match = None
+        best_score = 0
+        for fp, label in flowprint.fingerprints.items():
+            if k.compare(fp) > best_score:
+                best_score = k.compare(fp)
+                best_match = label
+        print("    {} --> {}".format(k, best_match))
     raise ValueError("Warning, should be implemented properly")
 
-def detection(flowprint, train, test):
+def detection(flowprint, test):
     """Execute Flowprint in detection mode"""
     # TODO cleanup dramatically
-    train_fps = dict()
-    for k, val in train.items():
-        for v in val:
-            if v in train_fps:
-                train_fps[v] = train_fps[v] + [k]
-            else:
-                train_fps[v] = [k]
-
-    for k, val in test.items():
-        print(k)
-        for v in val:
-            for fp, label in train_fps.items():
-                if v.compare(fp) > 0.1:
-                    print("    {} --> {}".format(v, "matches"))
-                    break
-            else:
-                print("    {} --> {}".format(v, "is anomalous"))
-        raise ValueError("Warning, should be implemented properly")
+    for k, v in sorted(test.items(), key=lambda x: list(x[1])[0]):
+        for fp, label in flowprint.fingerprints.items():
+            if k.compare(fp) > 0.1:
+                print("    {} --> {}".format(v, "matches"))
+                break
+        else:
+            print("    {} --> {}".format(v, "is anomalous"))
+    raise ValueError("Warning, should be implemented properly")
 
 
 
@@ -286,44 +260,17 @@ Train/test input (for --detection/--recognition):
         ################################################################
         #                      Load fingerprints                       #
         ################################################################
-        # Load train and test fingerprints
-        train_fps = dict()
-        test_fps  = dict()
-
-        from fingerprint import Fingerprint
-
-        # Loop over training fingerprint files
-        for train in args.train:
-            # Read fingerprints
-            with open(train) as infile:
-                # Read fingerprints
-                data = json.load(infile)
-                # Loop over fingerprints
-                for label, fingerprints in data.items():
-                    # Transform data to fingerprints
-                    fps = set([Fingerprint().from_dict(fp) for fp in fingerprints])
-                    # Update training fingerprints
-                    train_fps[label] = train_fps.get(label, set()) | fps
-
-        # Loop over training fingerprint files
-        for test in args.test:
-            # Read fingerprints
-            with open(test) as infile:
-                # Read fingerprints
-                data = json.load(infile)
-                # Loop over fingerprints
-                for label, fingerprints in data.items():
-                    # Transform data to fingerprints
-                    fps = set([Fingerprint().from_dict(fp) for fp in fingerprints])
-                    # Update training fingerprints
-                    test_fps[label] = test_fps.get(label, set()) | fps
+        # Load FlowPrint with train fingerprints
+        flowprint.load(*args.train)
+        # Load test fingerprints from file
+        test_fps = flowprint.load(*args.test, store=False)
 
         ################################################################
         #                         Execute mode                         #
         ################################################################
         # Detection mode
         if args.detection:
-            detection(flowprint, train_fps, test_fps)
+            detection(flowprint, test_fps)
         # Recognition mode
         elif args.recognition:
-            recognition(flowprint, train_fps, test_fps)
+            recognition(flowprint, test_fps)
