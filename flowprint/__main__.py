@@ -153,8 +153,8 @@ Arguments:
 FlowPrint mode (select up to one):
   --fingerprint [FILE]       run in raw fingerprint generation mode (default)
                              outputs to terminal or json FILE
-  --detection                run in unseen app detection mode (Unimplemented)
-  --recognition              run in app recognition mode      (Unimplemented)
+  --detection                run in unseen app detection mode
+  --recognition              run in app recognition mode
 
 FlowPrint parameters:
   -b, --batch       FLOAT    batch size in seconds       (default=300)
