@@ -102,36 +102,6 @@ def fingerprint(flowprint, args):
 
 
 
-
-def recognition(flowprint, test):
-    """Execute Flowprint in recognition mode"""
-    # TODO cleanup dramatically
-
-    for k, v in sorted(test.items(), key=lambda x: list(x[1])[0]):
-        best_match = None
-        best_score = 0
-        for fp, label in flowprint.fingerprints.items():
-            if k.compare(fp) > best_score:
-                best_score = k.compare(fp)
-                best_match = label
-        print("    {} --> {}".format(k, best_match))
-    raise ValueError("Warning, should be implemented properly")
-
-def detection(flowprint, test):
-    """Execute Flowprint in detection mode"""
-    # TODO cleanup dramatically
-    for k, v in sorted(test.items(), key=lambda x: list(x[1])[0]):
-        for fp, label in flowprint.fingerprints.items():
-            if k.compare(fp) > 0.1:
-                print("    {} --> {}".format(v, "matches"))
-                break
-        else:
-            print("    {} --> {}".format(v, "is anomalous"))
-    raise ValueError("Warning, should be implemented properly")
-
-
-
-
 if __name__ == "__main__":
     ########################################################################
     #                           Parse arguments                            #
@@ -262,15 +232,24 @@ Train/test input (for --detection/--recognition):
         ################################################################
         # Load FlowPrint with train fingerprints
         flowprint.load(*args.train)
-        # Load test fingerprints from file
-        test_fps = flowprint.load(*args.test, store=False)
+        # Load test fingerprints and labels from file
+        X_test, y_test = list(zip(*
+            flowprint.load(*args.test, store=False).items()
+        ))
 
         ################################################################
         #                         Execute mode                         #
         ################################################################
         # Detection mode
         if args.detection:
-            detection(flowprint, test_fps)
+            prediction = flowprint.detect(X_test)
+
         # Recognition mode
         elif args.recognition:
-            recognition(flowprint, test_fps)
+            prediction = flowprint.recognize(X_test)
+
+        ################################################################
+        #                         Show result                          #
+        ################################################################
+        for fp, y_test_, y_pred_ in zip(X_test, y_test, prediction):
+            print(fp, y_test_, y_pred_)
