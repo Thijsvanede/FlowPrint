@@ -42,6 +42,20 @@ class Fingerprint(frozenset):
         return len(self & other) / max(len(self | other), 1)
 
     ########################################################################
+    #                              Attributes                              #
+    ########################################################################
+
+    @property
+    def destinations(self):
+        """(IP, port) destination tuples in fingerprint"""
+        return sorted([list(x) for x in self if isinstance(x, tuple)])
+
+    @property
+    def certificates(self):
+        """Certificates in fingerprint"""
+        return sorted([x  for x in self if not isinstance(x, tuple)])
+
+    ########################################################################
     #                            I/O functions                             #
     ########################################################################
 
@@ -54,8 +68,8 @@ class Fingerprint(frozenset):
                 Fingerprint as dictionary, may be used for JSON export
             """
         return {
-            'certificates': sorted([     x  for x in self if not isinstance(x, tuple)]),
-            'destinations': sorted([list(x) for x in self if     isinstance(x, tuple)]),
+            'certificates': self.certificates,
+            'destinations': self.destinations,
             'n_flows': self.n_flows,
         }
 
