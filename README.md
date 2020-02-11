@@ -56,7 +56,7 @@ $ python3 flowprint --read <flows.p> --fingerprint <fingerprints.json> --split 0
  3. Application: use FlowPrint to recognize apps or detect previously unknown apps.
 ```
 $ python3 flowprint --train <fingerprints.train.json> --test <fingerprints.test.json> --recognition
-$ python3 flowprint --train <fingerprints.train.json> --test <fingerprints.test.json> --detection
+$ python3 flowprint --train <fingerprints.train.json> --test <fingerprints.test.json> --detection 0.1
 ```
 
 ## References
