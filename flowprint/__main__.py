@@ -232,9 +232,9 @@ Train/test input (for --detection/--recognition):
         # Load FlowPrint with train fingerprints
         flowprint.load(*args.train)
         # Load test fingerprints and labels from file
-        X_test, y_test = list(zip(*
+        X_test, y_test = zip(*
             flowprint.load(*args.test, store=False).items()
-        ))
+        )
 
         ################################################################
         #                         Execute mode                         #
@@ -250,5 +250,14 @@ Train/test input (for --detection/--recognition):
         ################################################################
         #                         Show result                          #
         ################################################################
-        for fp, y_test_, y_pred_ in zip(X_test, y_test, prediction):
-            print(fp, y_test_, y_pred_)
+
+        # Loop over all fingerprints
+        y_current = None
+        for fp, y_test_, y_pred_ in sorted(zip(X_test, y_test, prediction), key=lambda x: list(x[1])):
+            y_test_ = list(y_test_)[0]
+            if y_test_ != y_current:
+                print(y_test_)
+                y_current = y_test_
+
+            y_pred_ = list(y_pred_)[0]
+            print("    {} --{}--> {}".format(fp, y_test_ == y_pred_, y_pred_))
