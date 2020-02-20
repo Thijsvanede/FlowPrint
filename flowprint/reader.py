@@ -51,12 +51,17 @@ class Reader(object):
                 [8]: TCP/UDP packet destination port
                 [9]: SSL/TLS certificate if exists, else None
             """
+
+        # If verbose, print which file is currently being read
+        if self.verbose:
+            print("Reading {}...".format(path))
+
         # Check if we can use fast tshark read or slow pyshark read
         try:
             return self.read_tshark(path)
-        except:
-            warnings.warn("Defaulting to pyshark, having tshark installed "
-                          "dramatically improves the performance.")
+        except Exception as ex:
+            warnings.warn("tshark exception: '{}', defaulting to pyshark"
+                          .format(ex))
             return self.read_pyshark(path)
 
 
@@ -109,6 +114,15 @@ class Reader(object):
         for packet in filter(None, out.decode('utf-8').split('\n')):
             # Get all data from packets
             packet = packet.split()
+
+            # Perform check on packets
+            if len(packet) < 8: continue
+
+            # Perform check on multiple ip addresses
+            packet[3] = packet[3].split(',')[0]
+            packet[5] = packet[5].split(',')[0]
+            packet[7] = packet[7].replace(',', '')
+
             # Parse certificate
             if len(packet) > 8:
                 # Get first certificate
@@ -127,6 +141,11 @@ class Reader(object):
 
         # Get result as numpy array
         result = np.asarray(result)
+
+        # Check if any items exist
+        if not result.shape[0]:
+            return np.zeros((0, 8), dtype=object)
+
         # Change protocol number to text
         protocols = {'17': 'udp', '6': 'tcp'}
         result[:, 3] = [protocols.get(x, 'unknown') for x in result[:, 3]]
@@ -162,7 +181,6 @@ class Reader(object):
         if self.verbose:
             counter_a = 0
             counter_b = 0
-            print("Loading {}...".format(path), end='\r')
 
         # Read pcap file
         pcap = iter(pyshark.FileCapture(path))
@@ -184,7 +202,7 @@ class Reader(object):
             if self.verbose:
                 counter_a += 1
                 counter_b += 1
-                print("Loading {}... {}/{} packets".format(path, counter_a, counter_b), end='\r')
+                print("Reading {}... {}/{} packets".format(path, counter_a, counter_b), end='\r')
 
             # Get required packet data
             d = [path,

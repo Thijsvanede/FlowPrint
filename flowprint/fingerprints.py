@@ -1,6 +1,13 @@
 from itertools               import combinations
 import numpy as np
 
+try:
+    from .cluster import Cluster
+    from .cross_correlation_graph import CrossCorrelationGraph
+    from .fingerprint import Fingerprint
+except:
+    pass
+
 class FingerprintGenerator(object):
 
     def __init__(self, batch=300, window=30, correlation=0.1, similarity=0.9):

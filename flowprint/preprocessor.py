@@ -2,6 +2,12 @@ import numpy as np
 import pickle
 import sys
 
+try:
+    from .flows import Flows
+    from .reader import Reader
+except:
+    pass
+
 class Preprocessor(object):
 
     ########################################################################
@@ -48,8 +54,8 @@ class Preprocessor(object):
                 data = np.array(list(self.extract(file).values()))
             except KeyboardInterrupt:
                 break
-            except Exception:
-                print("Reading {} failed".format(file), file=sys.stderr)
+            except Exception as ex:
+                print("Reading {} failed: '{}'".format(file, ex), file=sys.stderr)
                 continue
             # Append data to X
             X.append(data)

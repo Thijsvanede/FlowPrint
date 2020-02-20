@@ -2,6 +2,11 @@ from collections import Counter
 import json
 import numpy as np
 
+try:
+    from .fingerprints import FingerprintGenerator
+except:
+    pass
+
 class FlowPrint(object):
 
     def __init__(self, batch=300, window=30, correlation=0.1, similarity=0.9,

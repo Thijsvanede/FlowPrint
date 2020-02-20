@@ -3,6 +3,12 @@ import numpy as np
 import os
 from sklearn.model_selection import train_test_split
 
+try:
+    from .flowprint import FlowPrint
+    from .preprocessor import Preprocessor
+except:
+    pass
+
 
 def fingerprint(flowprint, args):
     """Execute Flowprint in fingerprint mode"""
