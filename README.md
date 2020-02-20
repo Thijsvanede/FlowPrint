@@ -74,16 +74,16 @@ Train/test input (for --detection/--recognition):
 Run FlowPrint requires three steps:
  1. Preprocessing: transform `.pcap` files to `flows` that FlowPrint can interpret.
 ```
-$ python3 flowprint --pcaps <data.pcap> --write <flows.p>
+$ python3 -m flowprint --pcaps <data.pcap> --write <flows.p>
 ```
  2. Fingerprinting: extract `fingerprints` from `flows`.
 ```
-$ python3 flowprint --read <flows.p> --fingerprint <fingerprints.json> --split 0.5
+$ python3 -m flowprint --read <flows.p> --fingerprint <fingerprints.json> --split 0.5
 ```
  3. Application: use FlowPrint to recognize apps or detect previously unknown apps.
 ```
-$ python3 flowprint --train <fingerprints.train.json> --test <fingerprints.test.json> --recognition
-$ python3 flowprint --train <fingerprints.train.json> --test <fingerprints.test.json> --detection 0.1
+$ python3 -m flowprint --train <fingerprints.train.json> --test <fingerprints.test.json> --recognition
+$ python3 -m flowprint --train <fingerprints.train.json> --test <fingerprints.test.json> --detection 0.1
 ```
 
 ## References
