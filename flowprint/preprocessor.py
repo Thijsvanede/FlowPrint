@@ -6,7 +6,11 @@ try:
     from .flows import Flows
     from .reader import Reader
 except:
-    pass
+    try:
+        from flows import Flows
+        from reader import Reader
+    except:
+        pass
 
 class Preprocessor(object):
 

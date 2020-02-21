@@ -5,7 +5,10 @@ import numpy as np
 try:
     from .fingerprints import FingerprintGenerator
 except:
-    pass
+    try:
+        from fingerprints import FingerprintGenerator
+    except:
+        pass
 
 class FlowPrint(object):
 

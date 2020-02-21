@@ -5,7 +5,10 @@ import pandas as pd
 try:
     from .cluster import Cluster
 except:
-    pass
+    try:
+        from cluster import Cluster
+    except:
+        pass
 
 
 class BrowserDetector(object):

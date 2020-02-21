@@ -6,7 +6,12 @@ try:
     from .cross_correlation_graph import CrossCorrelationGraph
     from .fingerprint import Fingerprint
 except:
-    pass
+    try:
+        from cluster import Cluster
+        from cross_correlation_graph import CrossCorrelationGraph
+        from fingerprint import Fingerprint
+    except:
+        pass
 
 class FingerprintGenerator(object):
 

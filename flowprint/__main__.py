@@ -4,10 +4,14 @@ import os
 from sklearn.model_selection import train_test_split
 
 try:
-    from .flowprint import FlowPrint
+    from .flowprint    import FlowPrint
     from .preprocessor import Preprocessor
 except:
-    pass
+    try:
+        from flowprint    import FlowPrint
+        from preprocessor import Preprocessor
+    except:
+        pass
 
 
 def fingerprint(flowprint, args):
