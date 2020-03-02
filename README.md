@@ -25,13 +25,19 @@ This code is written in Python3 and depends on the following libraries:
  * Matplotlib
  * NetworkX
  * Numpy
- * Pyshark
+ * Pyshark or tshark (works with both backends, tshark is much faster)
  * Scikit-learn
 
 To install these use the following command
 ```
 pip install -U cryptography matplotlib networkx numpy pyshark scikit-learn
 ```
+
+If you'd like to use the tshark backend, please install tshark, on Ubuntu this can be done using
+```
+sudo apt install tshark
+```
+Note that FlowPrint will try to use tshark, if it cannot be found, it will default back to pyshark. It will display a warning message when tshark is not installed.
 
 ## Usage
 ```
