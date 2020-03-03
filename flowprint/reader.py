@@ -110,6 +110,11 @@ class Reader(object):
         # Get output
         out, err = process.communicate()
 
+        # Give warning message if any
+        if err:
+            warnings.warn("Error reading file: '{}'".format(
+                err.decode('utf-8')))
+
         # Read each packet
         for packet in filter(None, out.decode('utf-8').split('\n')):
             # Get all data from packets
@@ -192,7 +197,8 @@ class Reader(object):
         while True:
             try:
                 packet = next(pcap)
-            except:
+            except Exception as ex:
+                warnings.warn("Pyshark error: '{}'".format(ex))
                 break
 
             if not ("TCP" in packet or "UDP" in packet):
