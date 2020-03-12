@@ -99,7 +99,7 @@ $ python3 -m flowprint --train <fingerprints.train.json> --test <fingerprints.te
 ```
 @inproceedings{vanede2020flowprint,
   title={{FlowPrint: Semi-Supervised Mobile-App Fingerprinting on Encrypted Network Traffic}},
-  author={van Ede, Thijs and Bortolameotti, Riccardo and Continella, Andrea and Ren, Jingjing and Dubois, Daniel J. and Lindorfer, Martina and Choffness, David and van Steen, Maarten, and Peter, Andreas}
+  author={van Ede, Thijs and Bortolameotti, Riccardo and Continella, Andrea and Ren, Jingjing and Dubois, Daniel J. and Lindorfer, Martina and Choffness, David and van Steen, Maarten, and Peter, Andreas},
   booktitle={NDSS},
   year={2020},
   organization={The Internet Society}
