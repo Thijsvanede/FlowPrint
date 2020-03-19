@@ -5,4 +5,3 @@ This part of the documentation keeps track of desired features in future release
 
 - Add usage examples to documentation
 - Cleanup of Flow API and documentation
-- Move NetworkDestination to its own file
