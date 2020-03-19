@@ -53,5 +53,8 @@ html_theme = 'sphinx_rtd_theme'
 # so a file named "default.css" will overwrite the builtin "default.css".
 html_static_path = ['_static']
 
+# -- Set master doc ----------------------------------------------------------
+master_doc = 'index'
+
 # -- Mock modules ------------------------------------------------------------
 autodoc_mock_imports = ['cryptography', 'matplotlib', 'networkx', 'numpy', 'pandas', 'pyshark', 'sklearn']
