@@ -10,6 +10,9 @@ We automatically find temporal correlations among destination-related features o
 These fingerprints can later be reused to recognize known apps or to detect previously unseen apps.
 The main contribution of this work is to create network fingerprints without prior knowledge of the apps running in the network.
 
+## Documentation
+We provide an extensive [documentation](https://flowprint.readthedocs.io/en/latest/) and reference at readthedocs.io.
+
 ## Installation
 The easiest way to install FlowPrint is using pip
 ```
