@@ -11,39 +11,7 @@ These fingerprints can later be reused to recognize known apps or to detect prev
 The main contribution of this work is to create network fingerprints without prior knowledge of the apps running in the network.
 
 ## Documentation
-We provide an extensive [documentation](https://flowprint.readthedocs.io/en/latest/) and reference at readthedocs.io.
-
-## Installation
-The easiest way to install FlowPrint is using pip
-```
-pip install flowprint
-```
-
-### Manually
-If you would like to install FlowPrint manually, please make sure you have installed the required dependencies.
-
-#### Dependencies
-This code is written in Python3 and depends on the following python libraries:
- * Cryptography
- * Matplotlib
- * NetworkX
- * Numpy
- * Pandas
- * Pyshark or tshark (works with both backends, tshark is much faster)
- * Scikit-learn
-
-To install these use the following command
-```
-pip install -U cryptography matplotlib networkx numpy pandas pyshark scikit-learn
-```
-
-##### Tshark
-In addition to pyhon libraries, `tshark` is required as well.
-On Ubuntu you can install `tshark` by running.
-```
-sudo apt install tshark
-```
-Note that FlowPrint will try to use tshark as a raw backend, if this produces errors it will default back to pyshark.
+We provide an extensive including installation instructions and reference at [flowprint.readthedocs.io](https://flowprint.readthedocs.io/en/latest/).
 
 ## Usage
 ```
