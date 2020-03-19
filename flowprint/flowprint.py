@@ -214,7 +214,7 @@ class FlowPrint(object):
             """
         return self.fit(X, y).predict(X, y, default)
 
-    def recognize(self, X, y=None):
+    def recognize(self, X, y=None, default='common'):
         """Return labels corresponding to closest matching fingerprints
 
             Parameters
@@ -224,13 +224,20 @@ class FlowPrint(object):
 
             y : ignored
 
+            default : 'common'|'largest'|other, default='common'
+                Default to this strategy if no match is found
+                 - 'common' : return the fingerprint with most flows
+                 - 'largest': return the largest fingerprint
+                 - other: return <other> as match, e.g. Fingerprint()/None
+
             Returns
             -------
             result : np.array of shape=(n_fingerprints,)
                 Label of closest matching fingerprints to original
             """
         # Perform predict and return corresponding fingerprints
-        return np.asarray([self.fingerprints.get(x) for x in self.predict(X)])
+        return np.asarray([self.fingerprints.get(x) for x in
+                           self.predict(X, default=default)])
 
 
     def detect(self, X, y=None, threshold=None):
