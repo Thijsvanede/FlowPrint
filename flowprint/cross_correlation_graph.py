@@ -12,7 +12,7 @@ class CrossCorrelationGraph(object):
             time slices 3 and 7, then these destinations are represented by a
             single node. We use the self.mapping to extract the network
             destinations from each graph node.
-                This is a huge optimisation for finding cliques as the number of
+            This is a huge optimisation for finding cliques as the number of
             different network destinations theoretically covers the entire IP
             space, whereas the number of activity fingerprints is bounded by
             2^(batch / window), in our work 2^(300/30) = 2^10 = 1024. If these
@@ -91,13 +91,13 @@ class CrossCorrelationGraph(object):
         # Return generator over cliques
         return (set.union(*[self.mapping.get(n) for n in c]) for c in cliques)
 
-    def fit_predict(self, X, y=None):
+    def fit_predict(self, cluster, y=None):
         """Fit cross correlation graph with clusters from X and return cliques.
 
             Parameters
             ----------
-            X : array-like of shape=(n_samples,)
-                Flows for which to create a cross-correlation graph.
+            cluster : Cluster
+                Cluster to fit graph, cluster must be populated with flows
 
             y : ignored
 
@@ -107,7 +107,7 @@ class CrossCorrelationGraph(object):
                 Generator of all cliques in the graph
             """
         # Perform fit and predict
-        return self.fit(X).predict(X)
+        return self.fit(cluster).predict(cluster)
 
     ########################################################################
     #                      Compute cross correlation                       #
