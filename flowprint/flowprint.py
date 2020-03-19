@@ -188,6 +188,32 @@ class FlowPrint(object):
         # Return result
         return result
 
+    def fit_predict(self, X, y=None, default='common'):
+        """Fit FlowPrint with samples and labels and return the predictions
+            of the same samples after running them through FlowPrint.
+
+            Parameters
+            ----------
+            X : np.array of shape=(n_samples,)
+                Flows for fitting FlowPrint.
+
+            y : np.array of shape=(n_samples,), optional
+                If given, attach labels to fingerprints from X.
+
+            default : 'common'|'largest'|other, default='common'
+                Default to this strategy if no match is found
+                 - 'common' : return the fingerprint with most flows
+                 - 'largest': return the largest fingerprint
+                 - other: return <other> as match, e.g. Fingerprint()/None
+
+            Returns
+            -------
+            result : np.array of shape=(n_fingerprints,)
+                Closest matching fingerprints to original.
+                If no match is found, fall back on default
+            """
+        return self.fit(X, y).predict(X, y, default)
+
     def recognize(self, X, y=None):
         """Return labels corresponding to closest matching fingerprints
 
