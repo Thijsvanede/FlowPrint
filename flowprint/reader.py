@@ -29,7 +29,8 @@ class Reader(object):
     ########################################################################
 
     def read(self, path):
-        """Read TCP and UDP packets from file given by path.
+        """Read TCP and UDP packets from .pcap file given by path.
+            Automatically choses fastest available backend to use.
 
             Parameters
             ----------
@@ -40,16 +41,22 @@ class Reader(object):
             -------
             result : np.array of shape=(n_packets, n_features)
                 Where features consist of:
-                [0]: Filename of capture
-                [1]: Protocol TCP/UDP
-                [2]: TCP/UDP stream identifier
-                [3]: Timestamp of packet
-                [4]: Length of packet
-                [5]: IP packet source
-                [6]: IP packet destination
-                [7]: TCP/UDP packet source port
-                [8]: TCP/UDP packet destination port
-                [9]: SSL/TLS certificate if exists, else None
+
+                0) Filename of capture
+                1) Protocol TCP/UDP
+                2) TCP/UDP stream identifier
+                3) Timestamp of packet
+                4) Length of packet
+                5) IP packet source
+                6) IP packet destination
+                7) TCP/UDP packet source port
+                8) TCP/UDP packet destination port
+                9) SSL/TLS certificate if exists, else None
+
+            Warning
+            -------
+            warning
+                Method throws warning if tshark is not available.
             """
 
         # If verbose, print which file is currently being read
@@ -60,13 +67,15 @@ class Reader(object):
         try:
             return self.read_tshark(path)
         except Exception as ex:
-            warnings.warn("tshark exception: '{}', defaulting to pyshark"
+            warnings.warn("tshark error: '{}', defaulting to pyshark backend. "
+                          "note that the pyshark backend is much slower than "
+                          "the tshark backend."
                           .format(ex))
             return self.read_pyshark(path)
 
 
     def read_tshark(self, path):
-        """Read TCP and UDP packets from file given by path.
+        """Read TCP and UDP packets from file given by path using tshark backend
 
             Parameters
             ----------
@@ -77,16 +86,17 @@ class Reader(object):
             -------
             result : np.array of shape=(n_packets, n_features)
                 Where features consist of:
-                [0]: Filename of capture
-                [1]: Protocol TCP/UDP
-                [2]: TCP/UDP stream identifier
-                [3]: Timestamp of packet
-                [4]: Length of packet
-                [5]: IP packet source
-                [6]: IP packet destination
-                [7]: TCP/UDP packet source port
-                [8]: TCP/UDP packet destination port
-                [9]: SSL/TLS certificate if exists, else None
+
+                0) Filename of capture
+                1) Protocol TCP/UDP
+                2) TCP/UDP stream identifier
+                3) Timestamp of packet
+                4) Length of packet
+                5) IP packet source
+                6) IP packet destination
+                7) TCP/UDP packet source port
+                8) TCP/UDP packet destination port
+                9) SSL/TLS certificate if exists, else None
             """
         # Create Tshark command
         command = ["tshark", "-r", path, "-Tfields",
@@ -160,7 +170,8 @@ class Reader(object):
 
 
     def read_pyshark(self, path):
-        """Read TCP and UDP packets from file given by path.
+        """Read TCP and UDP packets from file given by path
+            using pyshark backend
 
             Parameters
             ----------
@@ -171,16 +182,17 @@ class Reader(object):
             -------
             result : np.array of shape=(n_packets, n_features)
                 Where features consist of:
-                [0]: Filename of capture
-                [1]: Protocol TCP/UDP
-                [2]: TCP/UDP stream identifier
-                [3]: Timestamp of packet
-                [4]: Length of packet
-                [5]: IP packet source
-                [6]: IP packet destination
-                [7]: TCP/UDP packet source port
-                [8]: TCP/UDP packet destination port
-                [9]: SSL/TLS certificate if exists, else None
+
+                0) Filename of capture
+                1) Protocol TCP/UDP
+                2) TCP/UDP stream identifier
+                3) Timestamp of packet
+                4) Length of packet
+                5) IP packet source
+                6) IP packet destination
+                7) TCP/UDP packet source port
+                8) TCP/UDP packet destination port
+                9) SSL/TLS certificate if exists, else None
             """
         # If verbose, print which file is currently being read
         if self.verbose:

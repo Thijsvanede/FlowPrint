@@ -8,7 +8,7 @@ import ipaddress
 class Flow(object):
 
     def __init__(self):
-        """Representation of a Flow."""
+        """Initialise an empty Flow."""
         self.ips = set()
         self.certificates = set()
 
@@ -171,8 +171,8 @@ class Flows(object):
 
             Returns
             -------
-            flows : np.array of shape=(n_samples_flows, n_features_flows)
-                Numpy array grouped together as flows.
+            flows : dict()
+                Dictionary of flow_key -> Flow()
             """
         # Initialise result
         result = dict()
