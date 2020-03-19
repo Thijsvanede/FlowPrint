@@ -104,11 +104,11 @@ class Flow(object):
         return y_port if ipaddress.ip_address(x_ip).is_private else x_port
 
     def source(self):
-        """Returns source of Flow."""
+        """Returns source (source IP, source port)-tuple of Flow."""
         return (self.src(), self.sport())
 
     def destination(self):
-        """Returns destination of Flow."""
+        """Returns destination (destination IP, destination port)-tuple of Flow."""
         return (self.dst(), self.dport())
 
     def certificate(self):

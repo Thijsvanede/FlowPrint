@@ -27,7 +27,18 @@ class Fingerprint(frozenset):
     ########################################################################
 
     def merge(self, *other):
-        """Merge fingerprint with other fingerprint."""
+        """Merge fingerprint with other fingerprint(s)
+
+            Parameters
+            ----------
+            *other : Fingerprint
+                One or more fingerprints to merge with given Fingerprint
+
+            Returns
+            -------
+            result : Fingerprint
+                Merged fingerprint
+            """
         # Compute union of Fingerprints
         union = set().union(self, *other)
         # Create new fingerprint from union
@@ -38,7 +49,18 @@ class Fingerprint(frozenset):
         return result
 
     def compare(self, other):
-        """Compare two fingerprints."""
+        """Compare fingerprint with other fingerprint
+
+            Parameters
+            ----------
+            other : Fingerprint
+                Fingerprint to compare with
+
+            Returns
+            -------
+            result : float
+                Jaccard similarity between self and other
+            """
         return len(self & other) / max(len(self | other), 1)
 
     ########################################################################
