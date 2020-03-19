@@ -23,24 +23,27 @@ pip install flowprint
 If you would like to install FlowPrint manually, please make sure you have installed the required dependencies.
 
 #### Dependencies
-This code is written in Python3 and depends on the following libraries:
+This code is written in Python3 and depends on the following python libraries:
  * Cryptography
  * Matplotlib
  * NetworkX
  * Numpy
+ * Pandas
  * Pyshark or tshark (works with both backends, tshark is much faster)
  * Scikit-learn
 
 To install these use the following command
 ```
-pip install -U cryptography matplotlib networkx numpy pyshark scikit-learn
+pip install -U cryptography matplotlib networkx numpy pandas pyshark scikit-learn
 ```
 
-If you'd like to use the tshark backend, please install tshark, on Ubuntu this can be done using
+##### Tshark
+In addition to pyhon libraries, `tshark` is required as well.
+On Ubuntu you can install `tshark` by running.
 ```
 sudo apt install tshark
 ```
-Note that FlowPrint will try to use tshark, if it cannot be found, it will default back to pyshark. It will display a warning message when tshark is not installed.
+Note that FlowPrint will try to use tshark as a raw backend, if this produces errors it will default back to pyshark.
 
 ## Usage
 ```
