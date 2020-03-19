@@ -11,6 +11,7 @@ The main contribution of this work is to create network fingerprints without pri
    :caption: Contents:
 
    start
+   usage/usage
    reference/reference
    roadmap
    license
