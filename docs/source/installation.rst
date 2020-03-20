@@ -1,8 +1,5 @@
-Getting Started
-===============
-
 Installation
-^^^^^^^^^^^^
+============
 The most straigtforward way of installing FlowPrint is via pip
 
 .. code::

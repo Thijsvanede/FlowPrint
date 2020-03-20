@@ -10,7 +10,7 @@ The main contribution of this work is to create network fingerprints without pri
    :maxdepth: 2
    :caption: Contents:
 
-   start
+   installation
    usage/usage
    reference/reference
    roadmap
