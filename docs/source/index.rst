@@ -15,6 +15,7 @@ The main contribution of this work is to create network fingerprints without pri
    reference/reference
    roadmap
    license
+   citing
 
 
 Indices and tables
