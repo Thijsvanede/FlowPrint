@@ -33,8 +33,8 @@ Once FlowPrint is trained using the :py:meth:`~flowprint.FlowPrint.fit`, you can
 
 I/O methods
 ^^^^^^^^^^^
-FlowPrint provides methods to store and load a FlowPrint object, including its fingerprints to a json file.
+FlowPrint provides methods to save and load a FlowPrint object, including its fingerprints to a json file.
 
-.. automethod:: flowprint.FlowPrint.store
+.. automethod:: flowprint.FlowPrint.save
 
 .. automethod:: flowprint.FlowPrint.load

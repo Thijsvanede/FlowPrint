@@ -10,3 +10,4 @@ For detailed documentation of individual methods, we refer to the :ref:`Referenc
 
    overview
    command_line
+   code
