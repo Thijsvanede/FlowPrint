@@ -9,3 +9,4 @@ For detailed documentation of individual methods, we refer to the :ref:`Referenc
 .. toctree::
 
    overview
+   command_line
