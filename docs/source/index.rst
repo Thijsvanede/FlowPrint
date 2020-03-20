@@ -16,11 +16,3 @@ The main contribution of this work is to create network fingerprints without pri
    roadmap
    license
    citing
-
-
-Indices and tables
-==================
-
-* :ref:`genindex`
-* :ref:`modindex`
-* :ref:`search`
