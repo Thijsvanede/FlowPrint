@@ -270,13 +270,13 @@ class FlowPrint(object):
     #                             I/O methods                              #
     ########################################################################
 
-    def store(self, file, fingerprints=None):
-        """Store fingerprints to file.
+    def save(self, file, fingerprints=None):
+        """Save fingerprints to file.
 
             Parameters
             ----------
             file : string
-                File in which to store flowprint fingerprints.
+                File in which to save flowprint fingerprints.
 
             fingerprints : iterable of Fingerprint (optional)
                 If None export fingerprints from fitted FlowPrint object,

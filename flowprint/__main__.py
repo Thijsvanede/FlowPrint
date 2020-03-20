@@ -88,8 +88,8 @@ def fingerprint(flowprint, args):
             # Set output file
             outfile, ext = os.path.splitext(args.fingerprint)
             outfile = "{}{}{}".format(outfile, '.' + type if type else type, ext)
-            # Store fingerprints
-            flowprint.store(outfile)
+            # Save fingerprints
+            flowprint.save(outfile)
             # Notify user fingerprints were saved
             print("Fingerprints saved to {}".format(outfile))
 
