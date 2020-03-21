@@ -8,7 +8,7 @@ Note that this is mainly a wrapper method, the actual Fingerprint generation is 
 
 .. autoclass:: flowprint.FlowPrint
 
-    .. automethod:: __init__
+.. automethod:: flowprint.FlowPrint.__init__
 
 Generating fingerprints
 ^^^^^^^^^^^^^^^^^^^^^^^

@@ -8,18 +8,25 @@ import warnings
 from subprocess import Popen, PIPE
 
 class Reader(object):
+    """Reader object for extracting features from .pcap files
+
+        Attributes
+        ----------
+        verbose : boolean
+            Boolean indicating whether to be verbose in reading
+    """
 
     ########################################################################
     #                         Class initialisation                         #
     ########################################################################
 
     def __init__(self, verbose=False):
-        """Reader object for extracting features from .pcap files.
+        """Reader object for extracting features from .pcap files
 
             Parameters
             ----------
             verbose : boolean, default=False
-                Boolean indicating whether to be verbose in reading.
+                Boolean indicating whether to be verbose in reading
             """
         # Set verbosity level
         self.verbose = verbose

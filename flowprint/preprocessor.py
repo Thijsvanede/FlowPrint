@@ -13,13 +13,23 @@ except:
         pass
 
 class Preprocessor(object):
+    """Preprocessor object for preprocessing flows from pcap files
+
+        Attributes
+        ----------
+        reader : reader.Reader
+            pcap Reader object for reading .pcap files
+
+        flows : flows.Flows
+            Flow generator object for generating Flow objects
+    """
 
     ########################################################################
     #                         Class initialisation                         #
     ########################################################################
 
     def __init__(self, verbose=False):
-        """Preprocessor object for preprocessing flows from pcap files."""
+        """Preprocessor object for preprocessing flows from pcap files"""
         # Initialise Reader object
         self.reader = Reader(verbose)
         # Initialise Flow object

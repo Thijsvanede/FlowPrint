@@ -17,6 +17,22 @@ except:
 ################################################################################
 
 class Cluster(object):
+    """Cluster object for clustering flows by network destination
+
+        Attributes
+        ----------
+        samples : np.array of shape=(n_samples,)
+            Samples used to fit Cluster
+
+        counter : int
+            Counter for total number of NetworkDestinations generated
+
+        dict_destination : dict
+            Dicationary of (dst IP, dst port) -> NetworkDestination
+
+        dict_certificate : dict
+            Dicationary of TLS certificate -> NetworkDestination
+    """
 
     def __init__(self, load=None):
         """Cluster flows by network destinations

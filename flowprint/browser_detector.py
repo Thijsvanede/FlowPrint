@@ -12,6 +12,19 @@ except:
 
 
 class BrowserDetector(object):
+    """Detector for browser application
+
+        Attributes
+        ----------
+        classifier : sklearn.ensemble.RandomForestClassifier
+            Random forest classifier used for classifying individual datapoints
+
+        before : float
+            Time frame in seconds to remove before detected browser
+
+        after : float
+            Time frame in seconds to remove after detected browser
+    """
 
     def __init__(self, before=10, after=10, random_state=42):
         """Detector for browser application

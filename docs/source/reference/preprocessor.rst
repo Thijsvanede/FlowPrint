@@ -7,7 +7,7 @@ The Preprocessor object transforms data to from .pcap files to :ref:`Flow`.
 
 .. autoclass:: preprocessor.Preprocessor
 
-    .. automethod:: __init__
+.. automethod:: preprocessor.Preprocessor.__init__
 
 Process data
 ^^^^^^^^^^^^

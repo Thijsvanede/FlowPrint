@@ -7,7 +7,7 @@ The Reader object extracts raw features from .pcap files that can be turned into
 
 .. autoclass:: reader.Reader
 
-    .. automethod:: __init__
+.. automethod:: reader.Reader.__init__
 
 Read data
 ^^^^^^^^^

@@ -1,9 +1,28 @@
 from collections import Counter
 
 class NetworkDestination(object):
+    """NetworkDestination object for flow samples
+
+        Attributes
+        ----------
+        identifier : object
+            Unique identifier for NetworkDestination
+
+        samples : list
+            List of flows stored in NetworkDestination
+
+        destinations : set
+            Set of destination (IP, port) tuples related to NetworkDestination
+
+        certificates : set
+            Set of TLS certificates related to NetworkDestination
+
+        labels : Counter
+            Labels related to NetworkDestination
+    """
 
     def __init__(self, identifier, samples=[]):
-        """NetworkDestination object for flow samples.
+        """NetworkDestination object for flow samples
 
             Parameters
             ----------

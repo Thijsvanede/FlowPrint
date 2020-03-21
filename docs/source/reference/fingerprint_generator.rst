@@ -13,7 +13,7 @@ These steps include
 
 .. autoclass:: fingerprints.FingerprintGenerator
 
-    .. automethod:: __init__
+.. automethod:: fingerprints.FingerprintGenerator.__init__
 
 Fingerprint generation
 ^^^^^^^^^^^^^^^^^^^^^^

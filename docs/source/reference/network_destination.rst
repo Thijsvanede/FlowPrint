@@ -7,7 +7,7 @@ A NetworkDestination represents a cluster of flows that communicate with the sam
 
 .. autoclass:: network_destination.NetworkDestination
 
-    .. automethod:: __init__
+.. automethod:: network_destination.NetworkDestination.__init__
 
 Adding Flows
 ------------

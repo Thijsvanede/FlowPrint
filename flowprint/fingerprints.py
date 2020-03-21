@@ -14,23 +14,39 @@ except:
         pass
 
 class FingerprintGenerator(object):
+    """Generator of FlowPrint Fingerprint objects from flows
+
+        Attributes
+        ----------
+        batch : float
+            Threshold for the batch size in seconds
+
+        window : float
+            Threshold for the window size in seconds
+
+        correlation : float
+            Threshold for the minimum required correlation
+
+        similarity : float
+            Threshold for the minimum required similarity
+    """
 
     def __init__(self, batch=300, window=30, correlation=0.1, similarity=0.9):
-        """Generate FlowPrint Fingerprint objects from flows.
+        """Generate FlowPrint Fingerprint objects from flows
 
             Parameters
             ----------
             batch : float, default=300
-                Threshold for the batch size in seconds.
+                Threshold for the batch size in seconds
 
             window : float, default=30
-                Threshold for the window size in seconds.
+                Threshold for the window size in seconds
 
             correlation : float, default=0.1
                 Threshold for the minimum required correlation
 
             similarity : float, default=0.9
-                Threshold for the minimum required similarity.
+                Threshold for the minimum required similarity
             """
         # Set FlowPrint parameters
         self.batch       = batch

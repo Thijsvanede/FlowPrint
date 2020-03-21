@@ -6,6 +6,22 @@ import ipaddress
 ########################################################################
 
 class Flow(object):
+    """Flow object extracted from pcap file that can be used for fingerprinting
+
+        Attributes
+        ----------
+        ips : set
+            Set of IPs in flow
+
+        certificates : set
+            Set of TLS certificates in flow
+
+        lengths : list
+            List of packet length for each packet in flow
+
+        timestamps : list
+            List of timestamps corresponding to each packet in flow
+    """
 
     def __init__(self):
         """Initialise an empty Flow."""
@@ -160,9 +176,10 @@ class Flow(object):
 ########################################################################
 
 class Flows(object):
+    """Generator for Flows from packets extraced using reader.Reader.read()"""
 
     def combine(self, packets):
-        """Combine individual packets into a flow representation.
+        """Combine individual packets into a flow representation
 
             Parameters
             ----------
@@ -171,7 +188,7 @@ class Flows(object):
 
             Returns
             -------
-            flows : dict()
+            flows : dict
                 Dictionary of flow_key -> Flow()
             """
         # Initialise result

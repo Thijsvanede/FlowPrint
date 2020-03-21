@@ -6,7 +6,7 @@ After performing feature extraction, FlowPrint clusters all :ref:`Flow`'s into :
 
 .. autoclass:: cluster.Cluster
 
-    .. automethod:: __init__
+.. automethod:: cluster.Cluster.__init__
 
 Generating clusters
 ^^^^^^^^^^^^^^^^^^^

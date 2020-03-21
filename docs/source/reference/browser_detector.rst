@@ -11,7 +11,7 @@ The BrowserDetector class is used as a supervised detector to isolate browser Fl
 
 .. autoclass:: browser_detector.BrowserDetector
 
-    .. automethod:: __init__
+.. automethod:: browser_detector.BrowserDetector.__init__
 
 Browser Detection
 ^^^^^^^^^^^^^^^^^

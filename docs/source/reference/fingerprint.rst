@@ -9,7 +9,7 @@ Essentially, it extends the frozenset (i.e., an unchangable set) class with meth
 
 .. autoclass:: fingerprint.Fingerprint
 
-    .. automethod:: __new__
+.. automethod:: fingerprint.Fingerprint.__new__
 
 Fingerprint comparison
 ^^^^^^^^^^^^^^^^^^^^^^

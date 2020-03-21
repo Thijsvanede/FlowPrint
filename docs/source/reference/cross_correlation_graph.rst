@@ -6,7 +6,7 @@ The CrossCorrelationGraph is used to compute correlations between different :py:
 
 .. autoclass:: cross_correlation_graph.CrossCorrelationGraph
 
-    .. automethod:: __init__
+.. automethod:: cross_correlation_graph.CrossCorrelationGraph.__init__
 
 Graph creation
 ^^^^^^^^^^^^^^

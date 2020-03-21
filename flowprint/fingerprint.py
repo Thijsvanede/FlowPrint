@@ -1,4 +1,25 @@
 class Fingerprint(frozenset):
+    """FlowPrint fingerprint: a frozenset of NetworkDestinations.
+
+        Attributes
+        ----------
+        destinations : list
+            (IP, port) destination tuples in fingerprint
+
+            Note
+            ----
+            Only as getter, cannot be set
+
+        certificates : list
+            Certificates in fingerprint
+
+            Note
+            ----
+            Only as getter, cannot be set
+
+        n_flows : int
+            Threshold for the window size in seconds
+    """
 
     def __new__(cls, *args):
         """FlowPrint fingerprint: a frozenset of NetworkDestinations."""

@@ -2,9 +2,28 @@ from itertools import combinations
 import networkx as nx
 
 class CrossCorrelationGraph(object):
+    """CrossCorrelationGraph for computing correlation between clusters
+
+        Attributes
+        ----------
+        window : float
+            Threshold for the window size in seconds
+
+        correlation : float
+            Threshold for the minimum required correlation
+
+        graph : nx.Graph
+            Cross correlation graph containing all correlations
+            Note that each node in the graph represents an 'activity signature'
+            to avoid duplicates. The NetworkDestinations corresponding to each
+            signature are stored in the 'mapping' attribute.
+
+        mapping : dict
+            NetworkDestinations corresponding to each node in the graph
+    """
 
     def __init__(self, window=30, correlation=0.1):
-        """CrossCorrelationGraph for computing correlation between clusters.
+        """CrossCorrelationGraph for computing correlation between clusters
 
             IMPORTANT: The self.graph object is an optimised graph. Each node
             does not represent a network destination, but represents an activity
@@ -23,7 +42,7 @@ class CrossCorrelationGraph(object):
             Parameters
             ----------
             window : float, default=30
-                Threshold for the window size in seconds.
+                Threshold for the window size in seconds
 
             correlation : float, default=0.1
                 Threshold for the minimum required correlation

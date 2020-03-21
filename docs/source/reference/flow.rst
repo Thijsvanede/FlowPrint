@@ -19,7 +19,7 @@ The Flow class is FlowPrint's representation of each individual Flow in the netw
 
 .. autoclass:: flows.Flow
 
-    .. automethod:: __init__
+.. automethod:: flows.Flow.__init__
 
 Add packets
 -----------
