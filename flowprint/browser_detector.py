@@ -7,8 +7,8 @@ try:
 except:
     try:
         from cluster import Cluster
-    except:
-        pass
+    except Exception as e:
+        raise ValueError(e)
 
 
 class BrowserDetector(object):

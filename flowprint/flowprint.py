@@ -7,8 +7,8 @@ try:
 except:
     try:
         from fingerprints import FingerprintGenerator
-    except:
-        pass
+    except Exception as e:
+        raise ValueError(e)
 
 class FlowPrint(object):
     """FlowPrint object for creating fingerprints from mobile network traffic

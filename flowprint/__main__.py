@@ -10,8 +10,8 @@ except:
     try:
         from flowprint    import FlowPrint
         from preprocessor import Preprocessor
-    except:
-        pass
+    except Exception as e:
+        raise ValueError(e)
 
 
 def fingerprint(flowprint, args):

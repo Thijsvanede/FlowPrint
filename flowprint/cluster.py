@@ -9,8 +9,8 @@ try:
 except:
     try:
         from network_destination import NetworkDestination
-    except:
-        pass
+    except Exception as e:
+        raise ValueError(e)
 
 ################################################################################
 #         Cluster object for clustering flows per network destination          #

@@ -3,14 +3,14 @@ import pickle
 import sys
 
 try:
-    from .flows import Flows
+    from .flow_generator import FlowGenerator
     from .reader import Reader
 except:
     try:
-        from flows import Flows
+        from flow_generator import FlowGenerator
         from reader import Reader
-    except:
-        pass
+    except Exception as e:
+        raise ValueError(e)
 
 class Preprocessor(object):
     """Preprocessor object for preprocessing flows from pcap files
@@ -20,7 +20,7 @@ class Preprocessor(object):
         reader : reader.Reader
             pcap Reader object for reading .pcap files
 
-        flows : flows.Flows
+        flow_generator : flows.FlowGenerator
             Flow generator object for generating Flow objects
     """
 
@@ -33,7 +33,7 @@ class Preprocessor(object):
         # Initialise Reader object
         self.reader = Reader(verbose)
         # Initialise Flow object
-        self.flows  = Flows()
+        self.flow_generator  = FlowGenerator()
 
     ########################################################################
     #                       Process files and labels                       #
@@ -111,7 +111,7 @@ class Preprocessor(object):
         # Read packets
         result = self.reader.read(infile)
         # Combine packets into flows
-        result = self.flows.combine(result)
+        result = self.flow_generator.combine(result)
         # Return result
         return result
 

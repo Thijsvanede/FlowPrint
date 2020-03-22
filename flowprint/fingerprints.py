@@ -10,8 +10,8 @@ except:
         from cluster import Cluster
         from cross_correlation_graph import CrossCorrelationGraph
         from fingerprint import Fingerprint
-    except:
-        pass
+    except Exception as e:
+        raise ValueError(e)
 
 class FingerprintGenerator(object):
     """Generator of FlowPrint Fingerprint objects from flows
