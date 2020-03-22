@@ -13,6 +13,7 @@ This is the reference documentation for the classes and methods objects provided
    cross_correlation_graph
    fingerprint
    flow
+   flow_generator
    flowprint
    fingerprint_generator
    network_destination

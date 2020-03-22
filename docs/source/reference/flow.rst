@@ -2,20 +2,9 @@
 
 Flow
 ====
-A Flow object represents a TCP/UDP flow and all corresponding features that are used by FlowPrint to generate fingerprints.
-We use the Flows class for generating Flow objects from all packets extracted by :ref:`Reader`.
-
-Flow generation
-^^^^^^^^^^^^^^^
-To convert features from individual packets to Flows, we use the :py:meth:`flows.Flows.combine` method.
-
-.. autoclass:: flows.Flows
-    :members:
-
-Flow
-^^^^
-
 The Flow class is FlowPrint's representation of each individual Flow in the network traffic.
+A Flow object represents a TCP/UDP flow and all corresponding features that are used by FlowPrint to generate fingerprints.
+We use the :ref:`FlowGenerator` class for generating Flow objects from all packets extracted by :ref:`Reader`.
 
 .. autoclass:: flows.Flow
 
