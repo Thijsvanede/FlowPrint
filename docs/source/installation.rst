@@ -9,8 +9,13 @@ The most straigtforward way of installing FlowPrint is via pip
 If you wish to stay up to date with the latest development version, you can instead download the `source code`_.
 In this case, make sure that you have all the required `dependencies`_ installed.
 
-.. _dependencies: #Dependencies
+.. note::
+
+  Tshark should always be installed, see `tshark`_.
+
 .. _source code: https://github.com/Thijsvanede/FlowPrint
+
+.. _dependencies:
 
 Dependencies
 ^^^^^^^^^^^^
@@ -35,6 +40,8 @@ Or you can install these libraries yourself
 .. code::
 
   pip install -U cryptography matplotlib networkx numpy pandas pyshark scikit-learn
+
+.. _tshark:
 
 Tshark
 ------
