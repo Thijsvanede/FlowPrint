@@ -28,6 +28,12 @@ class Flow(object):
         destination : tuple
             (Destination IP, destination port) tuple
 
+        time_start : int
+            Timestamp of first packet in flow
+
+        time_end : int
+            Timestamp of last packet in flow
+
         certificate : Object
             Certificate of flow, if any
 
@@ -116,12 +122,12 @@ class Flow(object):
 
     @property
     def time_start(self):
-        """Returns start time of Flow."""
+        """Returns start time of Flow"""
         return min(self.timestamps)
 
     @property
     def time_end(self):
-        """Returns end time of Flow."""
+        """Returns end time of Flow"""
         return max(self.timestamps)
 
     ########################################################################
