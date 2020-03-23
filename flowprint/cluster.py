@@ -85,8 +85,8 @@ class Cluster(object):
         for sample, label in zip(X, y):
 
             # Extract values
-            certificate = sample.certificate()
-            destination = sample.destination()
+            certificate = sample.certificate
+            destination = sample.destination
 
             # Get the number of matching clusters
             clusters = [self.dict_certificate.get(certificate),
@@ -167,8 +167,8 @@ class Cluster(object):
                 if no cluster could be matched.
             """
         # Get matching cluster or -1
-        return self.dict_destination.get(X.destination(),
-               self.dict_certificate.get(X.certificate(),
+        return self.dict_destination.get(X.destination,
+               self.dict_certificate.get(X.certificate,
                NetworkDestination(-1))).identifier
 
     def fit_predict(self, X):

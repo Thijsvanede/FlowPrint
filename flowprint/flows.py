@@ -90,14 +90,17 @@ class Flow(object):
     #                    Source/Destination attributes                     #
     ########################################################################
 
+    @property
     def source(self):
         """(source IP, source port)-tuple of Flow"""
         return (self.src, self.sport)
 
+    @property
     def destination(self):
         """(destination IP, destination port)-tuple of Flow"""
         return (self.dst, self.dport)
 
+    @property
     def certificate(self):
         """Certificate of Flow"""
         return list(self.certificates)[0] if self.certificates else None

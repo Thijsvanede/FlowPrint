@@ -63,7 +63,7 @@ class NetworkDestination(object):
         self.samples.append(X)
         self.labels.update([y])
         # Update pointers
-        self.destinations.add(X.destination())
+        self.destinations.add(X.destination)
         self.certificates |= X.certificates
 
 
@@ -91,8 +91,8 @@ class NetworkDestination(object):
     def get_description(self):
         """Returns human readable description of cluster"""
         # Get descriptions
-        descr_cert = [X.certificate() for X in self.samples]
-        descr_ip   = ["{}".format(X.destination()) for X in self.samples]
+        descr_cert = [X.certificate for X in self.samples]
+        descr_ip   = ["{}".format(X.destination) for X in self.samples]
         # Remove None values
         descr_cert = [x for x in descr_cert if x is not None]
         descr_ip   = [x for x in descr_ip   if x is not None]

@@ -194,8 +194,8 @@ class FingerprintGenerator(object):
 
         # Apply mapping
         prediction = np.array([
-            mapping_fingerprints.get(x.destination(),
-            mapping_fingerprints.get(x.certificate(),
+            mapping_fingerprints.get(x.destination,
+            mapping_fingerprints.get(x.certificate,
             Fingerprint())) for x in X
         ])
 
