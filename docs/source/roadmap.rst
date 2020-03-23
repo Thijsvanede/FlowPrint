@@ -3,7 +3,7 @@ Roadmap
 
 This part of the documentation keeps track of desired features in future releases.
 
-- Cleanup of Flow API and documentation
+- None at the moment
 
 Nice to haves
 ^^^^^^^^^^^^^
