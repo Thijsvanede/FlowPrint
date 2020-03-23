@@ -22,6 +22,15 @@ class Flow(object):
         dport : int
             Destination port
 
+        source : tuple
+            (Source IP, source port) tuple
+
+        destination : tuple
+            (Destination IP, destination port) tuple
+
+        certificate : Object
+            Certificate of flow, if any
+
         certificates : set
             Set of TLS certificates in flow
 
