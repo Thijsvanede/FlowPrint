@@ -5,7 +5,7 @@ with open("README.md", "r") as fh:
 
 setuptools.setup(
     name="flowprint",
-    version="0.0.6",
+    version="1.0.0",
     author="Thijs van Ede",
     author_email="t.s.vanede@utwente.nl",
     description="FlowPrint: Semi-Supervised Mobile-App Fingerprinting on "
