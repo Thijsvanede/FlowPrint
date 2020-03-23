@@ -97,7 +97,7 @@ class FingerprintGenerator(object):
         y = y[sort_time]
 
         # Divide X and y in batches of size batch
-        sort_batch = np.array([x.time_start() for x in X])
+        sort_batch = np.array([x.time_start for x in X])
         # Compute number of required batches
         if sort_batch.shape[0]:
             batches = int(
@@ -243,7 +243,7 @@ class FingerprintGenerator(object):
         X = X[sort_time]
         y = y[sort_time]
         # Get timestamps
-        timestamps = np.asarray([x.time_start() for x in X])
+        timestamps = np.asarray([x.time_start for x in X])
 
         ####################################################################
         #               Assign closest fingerprints in time                #
@@ -267,8 +267,8 @@ class FingerprintGenerator(object):
             before = min(block) - 1
             after  = max(block) + 1
             # Get timestamps before and after block
-            ts_before = X[before].time_start() if before >= 0          else float('inf')
-            ts_after  = X[after ].time_start() if after  <  X.shape[0] else float('inf')
+            ts_before = X[before].time_start if before >= 0          else float('inf')
+            ts_after  = X[after ].time_start if after  <  X.shape[0] else float('inf')
             # Get fingerprints before and after block
             fp_before = y[before] if before >= 0          else Fingerprint()
             fp_after  = y[after ] if after  <  X.shape[0] else Fingerprint()

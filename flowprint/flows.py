@@ -114,10 +114,12 @@ class Flow(object):
         """Certificate of Flow"""
         return list(self.certificates)[0] if self.certificates else None
 
+    @property
     def time_start(self):
         """Returns start time of Flow."""
         return min(self.timestamps)
 
+    @property
     def time_end(self):
         """Returns end time of Flow."""
         return max(self.timestamps)

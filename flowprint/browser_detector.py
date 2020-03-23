@@ -100,7 +100,7 @@ class BrowserDetector(object):
         ################################################################
 
         # Get timestamps from flows
-        timestamps  = np.asarray([x.time_start() for x in X])
+        timestamps  = np.asarray([x.time_start for x in X])
 
         # Loop over all predictions
         for i, prediction in enumerate(predictions):
@@ -170,7 +170,7 @@ class BrowserDetector(object):
             'outgoing' : [ sum(y for y in x.lengths if y > 0) for x in X],
             'incoming' : [-sum(y for y in x.lengths if y < 0) for x in X],
             'cluster'  : Cluster().fit_predict(X)
-        }, index=pd.to_datetime([x.time_start() for x in X], unit='s')
+        }, index=pd.to_datetime([x.time_start for x in X], unit='s')
         ).sort_index()
 
         # Compute features as rolling changes

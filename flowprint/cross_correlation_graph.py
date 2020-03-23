@@ -190,7 +190,7 @@ class CrossCorrelationGraph(object):
         # Get samples
         X = cluster.samples
         # Compute start time
-        start = min(x.time_start() for x in X)
+        start = min(x.time_start for x in X)
 
         # Initialise mapping of NetworkDestination -> activity
         mapping = dict()
