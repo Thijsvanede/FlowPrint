@@ -64,7 +64,7 @@ class NetworkDestination(object):
         self.labels.update([y])
         # Update pointers
         self.destinations.add(X.destination)
-        self.certificates |= X.certificates
+        self.certificates.add(X.certificate)
 
 
     def merge(self, other):

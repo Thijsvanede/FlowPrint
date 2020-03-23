@@ -37,9 +37,6 @@ class Flow(object):
         certificate : Object
             Certificate of flow, if any
 
-        certificates : set
-            Set of TLS certificates in flow
-
         lengths : list
             List of packet length for each packet in flow
 
@@ -55,10 +52,16 @@ class Flow(object):
         self.dst   = None
         self.dport = None
 
-        self.certificates = set()
-
+        # Initialise certificates
+        self.certificate = None
+        # Initialise packet lengths
         self.lengths    = list()
+        # Initialise packet timestamps
         self.timestamps = list()
+
+    ########################################################################
+    #                        Add new packet to flow                        #
+    ########################################################################
 
     def add(self, packet):
         """Add a new packet to the flow.
@@ -67,9 +70,15 @@ class Flow(object):
             ----------
             packet : np.array of shape=(n_features,)
                 Packet from Reader.
+
+            Returns
+            -------
+            self : self
+                Returns self
             """
-        # Extract endpoints from packet
-        ip_a  , ip_b   =     packet[5],      packet[6]
+        # Extract IPs from packet
+        ip_a, ip_b = packet[5], packet[6]
+        # Extract ports from packet
         port_a, port_b = int(packet[7]), int(packet[8])
 
         # Perform packet check
@@ -86,12 +95,9 @@ class Flow(object):
 
         # Add certificate if any
         if packet[9] is not None:
-            self.certificates.add(packet[9])
-
-        # Perform equivalence checks
-        if len(self.certificates) > 1:
-            raise ValueError("More than 1 certificate found: {}"
-                             .format(self.certificates))
+            if self.certificate and self.certificate != packet[9]:
+                raise ValueError("Multiple TLS certificates found in single flow")
+            self.certificate = packet[9]
 
         # Set timestamps and lengths
         self.timestamps.append(float(packet[3]))
@@ -102,7 +108,7 @@ class Flow(object):
         return self
 
     ########################################################################
-    #                    Source/Destination attributes                     #
+    #                  Source/Destination/Time attributes                  #
     ########################################################################
 
     @property
@@ -114,11 +120,6 @@ class Flow(object):
     def destination(self):
         """(destination IP, destination port)-tuple of Flow"""
         return (self.dst, self.dport)
-
-    @property
-    def certificate(self):
-        """Certificate of Flow"""
-        return list(self.certificates)[0] if self.certificates else None
 
     @property
     def time_start(self):
