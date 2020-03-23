@@ -1,17 +1,26 @@
 from datetime import datetime
 import ipaddress
 
-########################################################################
-#                          Single Flow object                          #
-########################################################################
+################################################################################
+#                              Single Flow object                              #
+################################################################################
 
 class Flow(object):
     """Flow object extracted from pcap file that can be used for fingerprinting
 
         Attributes
         ----------
-        ips : set
-            Set of IPs in flow
+        src : string
+            Source IP
+
+        sport : int
+            Source port
+
+        dst : string
+            Destination IP
+
+        dport : int
+            Destination port
 
         certificates : set
             Set of TLS certificates in flow
@@ -25,7 +34,12 @@ class Flow(object):
 
     def __init__(self):
         """Initialise an empty Flow."""
-        self.ips = set()
+        # Initialise flow endpoints
+        self.src   = None
+        self.sport = None
+        self.dst   = None
+        self.dport = None
+
         self.certificates = set()
 
         self.lengths    = list()
@@ -39,96 +53,53 @@ class Flow(object):
             packet : np.array of shape=(n_features,)
                 Packet from Reader.
             """
-        # Add flow identifiers
-        self.ips.add((packet[5], packet[7]))
-        self.ips.add((packet[6], packet[8]))
+        # Extract endpoints from packet
+        ip_a  , ip_b   =     packet[5],      packet[6]
+        port_a, port_b = int(packet[7]), int(packet[8])
+
+        # Perform packet check
+        if self.src is not None:
+            if {self.src, self.dst} != {ip_a, ip_b} and {self.sport, self.dport} != {port_a, port_b}:
+                raise ValueError("Packet {} incompatible with flow {}" .format(packet, self))
+        # Set endpoints where smallest dport is destination
+        elif port_a > port_b:
+            self.src  , self.dst   = ip_a  , ip_b
+            self.sport, self.dport = port_a, port_b
+        else:
+            self.src  , self.dst   = ip_b  , ip_a
+            self.sport, self.dport = port_b, port_a
+
         # Add certificate if any
         if packet[9] is not None:
             self.certificates.add(packet[9])
 
         # Perform equivalence checks
-        if len(self.ips) > 2:
-            raise ValueError("More than 2 IPs found: {}".format(self.ips))
         if len(self.certificates) > 1:
             raise ValueError("More than 1 certificate found: {}"
                              .format(self.certificates))
 
         # Set timestamps and lengths
         self.timestamps.append(float(packet[3]))
-        self.lengths   .append( int(packet[4]) if packet[5] == self.src() else
+        self.lengths   .append( int(packet[4]) if packet[5] == self.src else
                                -int(packet[4]))
 
         # Return self
         return self
 
     ########################################################################
-    #                      Source/Destinatino methods                      #
+    #                    Source/Destination attributes                     #
     ########################################################################
 
-    def get_ips(self):
-        """Return set of IP addresses"""
-        return sorted([(str(ip), int(port)) for ip, port in self.ips])
-
-    def src(self):
-        """Return source IP of flow."""
-        (x_ip, x_port), (y_ip, y_port) = self.get_ips()
-
-        # If both IP addresses are private
-        if ipaddress.ip_address(x_ip).is_private and\
-           ipaddress.ip_address(y_ip).is_private:
-            # Return address with highest port
-            return x_ip if x_port > y_port else y_ip
-
-        # Return non-private address
-        return x_ip if ipaddress.ip_address(x_ip).is_private else y_ip
-
-    def dst(self):
-        """Return destination IP of flow."""
-        (x_ip, x_port), (y_ip, y_port) = self.get_ips()
-
-        # If both IP addresses are private
-        if ipaddress.ip_address(x_ip).is_private and\
-           ipaddress.ip_address(y_ip).is_private:
-            # Return address with lowest port
-            return y_ip if x_port > y_port else x_ip
-
-        # Return non-private address
-        return y_ip if ipaddress.ip_address(x_ip).is_private else x_ip
-
-    def sport(self):
-        """Return source port of flow."""
-        (x_ip, x_port), (y_ip, y_port) = self.get_ips()
-
-        # If both IP addresses are private
-        if ipaddress.ip_address(x_ip).is_private and\
-           ipaddress.ip_address(y_ip).is_private:
-            # Return highest port
-            return max(x_port, y_port)
-
-        return x_port if ipaddress.ip_address(x_ip).is_private else y_port
-
-    def dport(self):
-        """Return destination port of flow."""
-        (x_ip, x_port), (y_ip, y_port) = self.get_ips()
-
-        # If both IP addresses are private
-        if ipaddress.ip_address(x_ip).is_private and\
-           ipaddress.ip_address(y_ip).is_private:
-            # Return lowest port
-            return min(x_port, y_port)
-
-        return y_port if ipaddress.ip_address(x_ip).is_private else x_port
-
     def source(self):
-        """Returns source (source IP, source port)-tuple of Flow."""
-        return (self.src(), self.sport())
+        """(source IP, source port)-tuple of Flow"""
+        return (self.src, self.sport)
 
     def destination(self):
-        """Returns destination (destination IP, destination port)-tuple of Flow."""
-        return (self.dst(), self.dport())
+        """(destination IP, destination port)-tuple of Flow"""
+        return (self.dst, self.dport)
 
     def certificate(self):
-        """Returns certificate of Flow."""
+        """Certificate of Flow"""
         return list(self.certificates)[0] if self.certificates else None
 
     def time_start(self):
@@ -152,7 +123,7 @@ class Flow(object):
         return "[Time {} to {}] {:>15}:{:<5} <-> {:>15}:{:<5} [Length {}]".format(
             datetime.fromtimestamp(min(self.timestamps)).strftime("%H:%M:%S.%f"),
             datetime.fromtimestamp(max(self.timestamps)).strftime("%H:%M:%S.%f"),
-            self.src(), self.sport(), self.dst(), self.dport(),
+            self.src, self.sport, self.dst, self.dport,
             len(self))
 
     def __gt__(self, other):
