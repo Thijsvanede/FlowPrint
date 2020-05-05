@@ -39,7 +39,6 @@ if __name__ == "__main__":
     #                              Split data                              #
     ########################################################################
     if args.random:
-        print("random")
         # Perform random split
         X_train, X_test, y_train, y_test = train_test_split(
             X, y, test_size=args.ratio, random_state=42)
