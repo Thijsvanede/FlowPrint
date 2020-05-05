@@ -21,6 +21,8 @@ class CrossCorrelationGraph(object):
             to avoid duplicates. The NetworkDestinations corresponding to each
             signature are stored in the 'mapping' attribute.
 
+            Note
+            ----
             IMPORTANT: The CrossCorrelation.graph object is an optimised graph.
             Each node does not represent a network destination, but represents
             an activity fingerprint. E.g. when destinations A and B are both
@@ -145,8 +147,12 @@ class CrossCorrelationGraph(object):
             dense : boolean, default=True
                 If True  export the dense graph (see IMPORTANT note at graph),
                 this means that each node is represented by the time slices in
-                which they were active.
-                If False export the complete graph, not implemented yet.
+                which they were active. Each node still has the information of
+                all correlated nodes.
+
+                If False export the complete graph. Note that these graphs can
+                get very large with lots of edges, therefore, for manual
+                inspection it is recommended to use dense=True instead.
 
             format : ('gexf'|'gml'), default='gexf'
                 Format in which to export, currently only 'gexf', 'gml' are
