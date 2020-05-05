@@ -1,5 +1,8 @@
-from itertools import combinations
-import networkx as nx
+from collections import Counter
+from itertools   import combinations
+import json
+import networkx  as nx
+import warnings
 
 class CrossCorrelationGraph(object):
     """CrossCorrelationGraph for computing correlation between clusters
@@ -18,19 +21,12 @@ class CrossCorrelationGraph(object):
             to avoid duplicates. The NetworkDestinations corresponding to each
             signature are stored in the 'mapping' attribute.
 
-        mapping : dict
-            NetworkDestinations corresponding to each node in the graph
-    """
-
-    def __init__(self, window=30, correlation=0.1):
-        """CrossCorrelationGraph for computing correlation between clusters
-
-            IMPORTANT: The self.graph object is an optimised graph. Each node
-            does not represent a network destination, but represents an activity
-            fingerprint. E.g. when destinations A and B are both only active at
-            time slices 3 and 7, then these destinations are represented by a
-            single node. We use the self.mapping to extract the network
-            destinations from each graph node.
+            IMPORTANT: The CrossCorrelation.graph object is an optimised graph.
+            Each node does not represent a network destination, but represents
+            an activity fingerprint. E.g. when destinations A and B are both
+            only active at time slices 3 and 7, then these destinations are
+            represented by a single node. We use the self.mapping to extract the
+            network destinations from each graph node.
             This is a huge optimisation for finding cliques as the number of
             different network destinations theoretically covers the entire IP
             space, whereas the number of activity fingerprints is bounded by
@@ -38,6 +34,13 @@ class CrossCorrelationGraph(object):
             parameters change, the complexity may increase, but never beyond the
             original bounds. Hence, this optimisation never has a worse time
             complexity.
+
+        mapping : dict
+            NetworkDestinations corresponding to each node in the graph
+    """
+
+    def __init__(self, window=30, correlation=0.1):
+        """CrossCorrelationGraph for computing correlation between clusters
 
             Parameters
             ----------
@@ -127,6 +130,128 @@ class CrossCorrelationGraph(object):
             """
         # Perform fit and predict
         return self.fit(cluster).predict(cluster)
+
+    ########################################################################
+    #                                Export                                #
+    ########################################################################
+    def export(self, outfile, dense=True, format='gexf'):
+        """Export CrossCorrelationGraph to outfile for further analysis
+
+            Parameters
+            ----------
+            outfile : string
+                File to export CrossCorrelationGraph
+
+            dense : boolean, default=True
+                If True  export the dense graph (see IMPORTANT note at graph),
+                this means that each node is represented by the time slices in
+                which they were active.
+                If False export the complete graph, not implemented yet.
+
+            format : ('gexf'|'gml'), default='gexf'
+                Format in which to export, currently only 'gexf', 'gml' are
+                supported.
+            """
+        if dense:
+            # Get graph
+            graph = self.graph
+
+            # Initialise human-readable mapping of nodes
+            mapping = dict()
+            # Fill mapping
+            for node in graph:
+                # Initialise info
+                info = {
+                    'window': list(sorted(node)),
+                    'ips'   : set(),
+                    'certs' : set(),
+                    'labels': Counter(),
+                }
+                # Loop over corresponding network destinations
+                for destination in self.mapping.get(node):
+                    info['ips'   ] = info.get('ips'   , set())     |\
+                                     destination.destinations
+                    info['certs' ] = info.get('certs' , set())     |\
+                                     destination.certificates
+                    info['labels'] = info.get('labels', Counter()) +\
+                                     destination.labels
+
+                # Remove None from certificates
+                info['certs'] = info.get('certs', set()) - {None}
+                # Transform sets into lists
+                info['ips'  ] = list(info.get('ips'  , set()))
+                info['certs'] = list(info.get('certs', set()))
+
+                # Store mapping as text
+                mapping[node] = json.dumps(info, sort_keys=True)
+
+            # Relabel nodes
+            graph = nx.relabel_nodes(graph, mapping)
+
+        # Make graph not dense
+        else:
+            # Initialise non-dense graph
+            graph = nx.Graph()
+
+            # Fill non-dense graph with nodes
+            for node in self.graph:
+                # Loop over network destinations for each node in graph
+                for destination in self.mapping.get(node):
+                    # Add destination as a separate node
+                    graph.add_node(destination)
+
+            # Fill non-dense graph with edges
+            for node in self.graph:
+                # Loop over network destinations for each node in graph
+                for source in self.mapping.get(node):
+                    # Add all edges in between nodes
+                    for destination in self.mapping.get(node):
+                        # No self-loops
+                        if source == destination: continue
+                        # Add all source-destination edges
+                        graph.add_edge(source, destination, weight=1)
+
+                    # Add all edges to other nodes
+                    for connected in nx.neighbors(self.graph, node):
+                        # Get edge get_edge_data
+                        data = self.graph.get_edge_data(node, connected)
+                        # Get all destinations
+                        for destination in self.mapping.get(connected):
+                            graph.add_edge(source, destination, data=data)
+
+            # Transform network destinations to human readable format
+            # Initialise mapping
+            mapping = dict()
+            # Loop over all nodes in graph
+            for node in self.graph:
+                # Loop over network destinations for each node in graph
+                for destination in self.mapping.get(node):
+                    # Initialise info
+                    info = {
+                        'window': list(sorted(node)),
+                        'ips'   : list(destination.destinations),
+                        'certs' : list(destination.certificates - {None}),
+                        'labels': destination.labels,
+                    }
+
+                    # Store mapping as text
+                    mapping[destination] = json.dumps(info, sort_keys=True)
+
+            # Relabel nodes
+            graph = nx.relabel_nodes(graph, mapping)
+
+        # Export graph to file
+        if format.lower() == 'gexf':
+            nx.write_gexf(graph, outfile)
+        elif format.lower() == 'gml':
+            nx.write_gml(graph, outfile)
+        else:
+            # Warn user of unknown format
+            warnings.warn("Unknown export format '{}', defaulting to 'gexf'"
+                          .format(format))
+            # Export as gexf
+            nx.write_gexf(graph, outfile)
+
 
     ########################################################################
     #                      Compute cross correlation                       #
