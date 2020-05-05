@@ -19,3 +19,12 @@ Or do all in one step using the :py:meth:`cross_correlation_graph.CrossCorrelati
 .. automethod:: cross_correlation_graph.CrossCorrelationGraph.predict
 
 .. automethod:: cross_correlation_graph.CrossCorrelationGraph.fit_predict
+
+Graph export
+^^^^^^^^^^^^
+The CrossCorrelationGraph can be exported using the export function.
+This can be useful for further investigation using graphical tools such as Gephi_.
+
+.. automethod:: cross_correlation_graph.CrossCorrelationGraph.export
+
+.. _Gephi: https://gephi.org/
