@@ -11,7 +11,7 @@ These fingerprints can later be reused to recognize known apps or to detect prev
 The main contribution of this work is to create network fingerprints without prior knowledge of the apps running in the network.
 
 ## Documentation
-We provide an extensive including installation instructions and reference at [flowprint.readthedocs.io](https://flowprint.readthedocs.io/en/latest/).
+We provide an extensive documentation including installation instructions and reference at [flowprint.readthedocs.io](https://flowprint.readthedocs.io/en/latest/).
 
 ## References
 [1] `van Ede, T., Bortolameotti, R., Continella, A., Ren, J., Dubois, D. J., Lindorfer, M., Choffnes, D., van Steen, M. & Peter, A. (2020, February). FlowPrint: Semi-Supervised Mobile-App Fingerprinting on Encrypted Network Traffic. In 2020 NDSS. The Internet Society.`
