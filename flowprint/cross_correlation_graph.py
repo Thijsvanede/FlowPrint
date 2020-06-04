@@ -287,7 +287,7 @@ class CrossCorrelationGraph(object):
         activity = self.activity(cluster)
         # Get inverted mapping
         mapping = dict()
-        for destination, active in activity.items():
+        for destination, active in sorted(activity.items(), key=lambda x: x[0].identifier):
             mapping[frozenset(active)] =\
                 mapping.get(frozenset(active), set()) | set([destination])
 
