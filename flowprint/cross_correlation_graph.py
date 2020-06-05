@@ -272,7 +272,7 @@ class CrossCorrelationGraph(object):
                     data = self.graph.get_edge_data(node, connected)
                     # Get all destinations
                     for destination in self.mapping.get(connected):
-                        graph.add_edge(source, destination, data=data)
+                        graph.add_edge(source, destination, weight=data.get('weight'))
 
         # Return result
         return graph
