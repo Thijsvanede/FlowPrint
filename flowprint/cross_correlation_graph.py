@@ -196,34 +196,8 @@ class CrossCorrelationGraph(object):
 
         # Make graph not dense
         else:
-            # Initialise non-dense graph
-            graph = nx.Graph()
-
-            # Fill non-dense graph with nodes
-            for node in self.graph:
-                # Loop over network destinations for each node in graph
-                for destination in self.mapping.get(node):
-                    # Add destination as a separate node
-                    graph.add_node(destination)
-
-            # Fill non-dense graph with edges
-            for node in self.graph:
-                # Loop over network destinations for each node in graph
-                for source in self.mapping.get(node):
-                    # Add all edges in between nodes
-                    for destination in self.mapping.get(node):
-                        # No self-loops
-                        if source == destination: continue
-                        # Add all source-destination edges
-                        graph.add_edge(source, destination, weight=1)
-
-                    # Add all edges to other nodes
-                    for connected in nx.neighbors(self.graph, node):
-                        # Get edge get_edge_data
-                        data = self.graph.get_edge_data(node, connected)
-                        # Get all destinations
-                        for destination in self.mapping.get(connected):
-                            graph.add_edge(source, destination, data=data)
+            # Get non-dense graph
+            graph = self.unpack()
 
             # Transform network destinations to human readable format
             # Initialise mapping
@@ -257,6 +231,51 @@ class CrossCorrelationGraph(object):
                           .format(format))
             # Export as gexf
             nx.write_gexf(graph, outfile)
+
+
+    def unpack(self):
+        """Unpack an optimized graph.
+            Unpacks a dense graph (see IMPORTANT note at graph) into a graph
+            where every NetworkDestination has its own node. Note that these
+            graphs can get very large with lots of edges, therefore, for manual
+            inspection it is recommended to use the regular graph instead.
+
+            Returns
+            -------
+            graph : nx.Graph
+                Unpacked graph
+            """
+        # Initialise non-dense graph
+        graph = nx.Graph()
+
+        # Fill non-dense graph with nodes
+        for node in self.graph:
+            # Loop over network destinations for each node in graph
+            for destination in self.mapping.get(node):
+                # Add destination as a separate node
+                graph.add_node(destination)
+
+        # Fill non-dense graph with edges
+        for node in self.graph:
+            # Loop over network destinations for each node in graph
+            for source in self.mapping.get(node):
+                # Add all edges in between nodes
+                for destination in self.mapping.get(node):
+                    # No self-loops
+                    if source == destination: continue
+                    # Add all source-destination edges
+                    graph.add_edge(source, destination, weight=1)
+
+                # Add all edges to other nodes
+                for connected in nx.neighbors(self.graph, node):
+                    # Get edge get_edge_data
+                    data = self.graph.get_edge_data(node, connected)
+                    # Get all destinations
+                    for destination in self.mapping.get(connected):
+                        graph.add_edge(source, destination, data=data)
+
+        # Return result
+        return graph
 
 
     ########################################################################
