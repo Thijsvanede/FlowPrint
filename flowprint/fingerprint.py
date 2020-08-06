@@ -96,7 +96,7 @@ class Fingerprint(frozenset):
     @property
     def certificates(self):
         """Certificates in fingerprint"""
-        return sorted([x  for x in self if not isinstance(x, tuple)])
+        return sorted([x for x in self if not (x is None or isinstance(x, tuple))])
 
     ########################################################################
     #                            I/O functions                             #
