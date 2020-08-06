@@ -4,9 +4,11 @@ import numpy as np
 
 try:
     from .fingerprints import FingerprintGenerator
+    from .fingerprints import Fingerprint
 except:
     try:
         from fingerprints import FingerprintGenerator
+        from fingerprints import Fingerprint
     except Exception as e:
         raise ValueError(e)
 
