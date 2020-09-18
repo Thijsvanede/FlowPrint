@@ -207,7 +207,8 @@ class Reader(object):
             counter_b = 0
 
         # Read pcap file
-        pcap = iter(pyshark.FileCapture(path))
+        pcap_object = pyshark.FileCapture(path)
+        pcap        = iter(pcap_object)
 
         # Initialise result
         result = list()
@@ -216,6 +217,8 @@ class Reader(object):
         while True:
             try:
                 packet = next(pcap)
+            except StopIteration:
+                break
             except Exception as ex:
                 warnings.warn("Pyshark error: '{}'".format(ex))
                 break
@@ -258,7 +261,7 @@ class Reader(object):
             result.append(d)
 
         # Close capture
-        pcap.close()
+        pcap_object.close()
 
         if self.verbose:
             print()
