@@ -171,11 +171,11 @@ class FlowPrint(object):
 
             y : ignored
 
-            default : 'common'|'largest'|other, default='common'
+            default : "common"|"largest"|"other", default="common"
                 Default to this strategy if no match is found
-                 - 'common' : return the fingerprint with most flows
-                 - 'largest': return the largest fingerprint
-                 - other: return <other> as match, e.g. Fingerprint()/None
+                 - "common" : return the fingerprint with most flows
+                 - "largest": return the largest fingerprint
+                 - other    : return <other> as match, e.g. Fingerprint()/None
 
             Returns
             -------
@@ -228,11 +228,11 @@ class FlowPrint(object):
             y : np.array of shape=(n_samples,), optional
                 If given, attach labels to fingerprints from X.
 
-            default : 'common'|'largest'|other, default='common'
+            default : "common"|"largest"|"other", default="common"
                 Default to this strategy if no match is found
-                 - 'common' : return the fingerprint with most flows
-                 - 'largest': return the largest fingerprint
-                 - other: return <other> as match, e.g. Fingerprint()/None
+                 - "common" : return the fingerprint with most flows
+                 - "largest": return the largest fingerprint
+                 - other    : return <other> as match, e.g. Fingerprint()/None
 
             Returns
             -------
@@ -252,11 +252,11 @@ class FlowPrint(object):
 
             y : ignored
 
-            default : 'common'|'largest'|other, default='common'
+            default : "common"|"largest"|"other", default="common"
                 Default to this strategy if no match is found
-                 - 'common' : return the fingerprint with most flows
-                 - 'largest': return the largest fingerprint
-                 - other: return <other> as match, e.g. Fingerprint()/None
+                 - "common" : return the fingerprint with most flows
+                 - "largest": return the largest fingerprint
+                 - other    : return <other> as match, e.g. Fingerprint()/None
 
             Returns
             -------
