@@ -4,6 +4,7 @@ import glob
 import numpy as np
 import os
 import pyshark
+import re
 import warnings
 from subprocess import Popen, PIPE
 
@@ -105,6 +106,14 @@ class Reader(object):
                 8) TCP/UDP packet destination port
                 9) SSL/TLS certificate if exists, else None
             """
+        # Get tshark version
+        version = self.tshark_version()
+        # Set certificate command based on version
+        # tshark versions <3 use ssl.handshake.certificate
+        # tshark versions 3+ use tls.handshake.certificate
+        certificate  = "ssl" if int(version.split('.')[0]) < 3 else "tls"
+        certificate += ".handshake.certificate"
+
         # Create Tshark command
         command = ["tshark", "-r", path, "-Tfields",
                    "-e", "frame.time_epoch",
@@ -118,7 +127,7 @@ class Reader(object):
                    "-e", "tcp.dstport",
                    "-e", "udp.dstport",
                    "-e", "ip.len",
-                   "-e", "ssl.handshake.certificate"]
+                   "-e", certificate]
         # Initialise result
         result = list()
 
@@ -268,3 +277,33 @@ class Reader(object):
 
         # Return result as numpy array
         return np.array(result)
+
+    ########################################################################
+    #                          Utility functions                           #
+    ########################################################################
+
+    def tshark_version(self):
+        """Returns the current version of tshark.
+
+            Returns
+            -------
+            version : string
+                Current version number of tshark.
+            """
+        # Get tshark version via command line
+        command  = ["tshark", "--version"]
+        process  = Popen(command, stdout=PIPE, stderr=PIPE)
+        out, err = process.communicate()
+
+        # Throw error if any
+        if err:
+            raise ValueError(
+                "Exception in tshark version check: '{}'".format(err))
+
+        # Search for version number
+        regex   = re.compile('TShark .*(\d+\.\d+\.\d+) ')
+        out     = out.decode('utf-8')
+        version = regex.search(out).group(1)
+
+        # Return version
+        return version
