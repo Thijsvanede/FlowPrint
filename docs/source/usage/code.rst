@@ -40,6 +40,18 @@ To extract :ref:`Flow` objects from :code:`.pcap` files, we use the :ref:`Prepro
   # Load flows from file 'flows.p'
   X, y = preprocessor.load('flows.p')
 
+Splitting flows
+^^^^^^^^^^^^^^^
+In the next sections we assume there are some flows used for training :code:`X_train` with their corresponding labels :code:`y_train`, and other flows used for testing :code:`X_test` with their corresponding labels :code:`y_test`. Here we give an example of how to split flows into training and testing data.
+
+.. code:: python
+
+  # Imports
+  from sklearn.model_selection import train_test_split
+
+  # Split data into training and testing data
+  X_train, X_test, y_train, y_test = train_test_split(X, y, test_size = 0.3, random_state = 42)
+
 Fingerprint generation
 ^^^^^^^^^^^^^^^^^^^^^^
 To generate fingerprints we use the :ref:`FlowPrint` object.
@@ -60,8 +72,11 @@ We assume that the we have training flows and labels in variables :code:`X_train
 
   # Fit FlowPrint with flows and labels
   flowprint.fit(X_train, y_train)
-  # Predict best matching fingerprints for each flow
-  y_pred = flowprint.predict(X_test)
+
+  # Create fingerprints for test data
+  fp_test = flowprint.fingerprint(X_test)
+  # Predict best matching fingerprints for each test fingerprint
+  y_pred = flowprint.predict(fp_test)
 
   # Store fingerprints to file 'fingerprints.json'
   flowprint.save('fingerprints.json')
@@ -91,7 +106,20 @@ Again, we assume that the we have training flows and labels in variables :code:`
   flowprint.fit(X_train, y_train)
 
   # Recognise which app produced each flow
-  y_recognize = flowprint.recognize(X_test)
+  y_recognize = flowprint.recognize(fp_test)
   # Detect previously unseen apps
   # +1 if a flow belongs to a known app, -1 if a flow belongs to an unknown app
-  y_detect    = flowprint.detect(X_test)
+  y_detect    = flowprint.detect(fp_test)
+
+We can generate a classification report of the app recognition using sklearn's `Classification Report`_:
+
+.. code:: python
+
+  # Imports
+  from sklearn.metrics import classification_report
+
+  # Print report with 4 digit precision
+  print(classification_report(y_test, y_recognize, digits=4))
+
+
+.. _Classification Report: https://scikit-learn.org/stable/modules/generated/sklearn.metrics.classification_report.html

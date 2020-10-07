@@ -10,14 +10,21 @@ Note that this is mainly a wrapper method, the actual Fingerprint generation is 
 
 .. automethod:: flowprint.FlowPrint.__init__
 
-Generating fingerprints
-^^^^^^^^^^^^^^^^^^^^^^^
+Fitting and Predicting
+^^^^^^^^^^^^^^^^^^^^^^
+We train FlowPrint using the :py:meth:`~flowprint.FlowPrint.fit` method and can predict using the :py:meth:`~flowprint.FlowPrint.predict` method.
 
 .. automethod:: flowprint.FlowPrint.fit
 
 .. automethod:: flowprint.FlowPrint.predict
 
 .. automethod:: flowprint.FlowPrint.fit_predict
+
+Generating fingerprints
+^^^^^^^^^^^^^^^^^^^^^^^
+As opposed to the :py:meth:`~flowprint.FlowPrint.fit` and :py:meth:`~flowprint.FlowPrint.predict` methods, :py:meth:`~flowprint.FlowPrint.recognize` and :py:meth:`~flowprint.FlowPrint.detect` require :ref:`Fingerprint` objects as input instead of :ref:`Flow` objects. Therefore, we provide a simple method to transform :ref:`Flow` objects to their corresponding :ref:`Fingerprint`.
+
+.. automethod:: flowprint.FlowPrint.fingerprint
 
 App Recognition
 ^^^^^^^^^^^^^^^

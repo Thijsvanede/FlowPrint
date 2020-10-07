@@ -8,40 +8,36 @@ The full command line usage is given in its :code:`help` page:
 
 .. code:: text
 
-  usage: flowprint.py [-h]
-                    (--detection [FLOAT] | --fingerprint [FILE] | --recognition)
-                    [-b BATCH] [-c CORRELATION], [-s SIMILARITY], [-w WINDOW]
-                    [-p PCAPS...] [-rp READ...] [-wp WRITE]
+  usage: flowprint.py [-h] [--fingerprint [FINGERPRINT] | --detection DETECTION | --recognition] [-b BATCH]
+                      [-c CORRELATION] [-s SIMILARITY] [-w WINDOW] [-p PCAPS [PCAPS ...]]
+                      [-r READ [READ ...]] [-o WRITE] [-l SPLIT] [-a RANDOM] [-t TRAIN [TRAIN ...]]
+                      [-e TEST [TEST ...]]
 
   Flowprint: Semi-Supervised Mobile-App
   Fingerprinting on Encrypted Network Traffic
 
-  Arguments:
-    -h, --help                 show this help message and exit
-
-  FlowPrint mode (select up to one):
-    --fingerprint [FILE]       run in raw fingerprint generation mode (default)
-                               outputs to terminal or json FILE
-    --detection   FLOAT        run in unseen app detection mode with given
-                               FLOAT threshold
-    --recognition              run in app recognition mode
+  optional arguments:
+  -h, --help                         show this help message and exit
+  --fingerprint   [FINGERPRINT]      mode fingerprint generation [output to FILE] (optional)
+  --detection     DETECTION          mode unseen app detection with THRESHOLD
+  --recognition                      mode app recognition
 
   FlowPrint parameters:
-    -b, --batch       FLOAT    batch size in seconds       (default=300)
-    -c, --correlation FLOAT    cross-correlation threshold (default=0.1)
-    -s, --similarity  FLOAT    similarity threshold        (default=0.9)
-    -w, --window      FLOAT    window size in seconds      (default=30)
+  -b, --batch     BATCH              batch  size in seconds                       (default = 300)
+  -c, --correlation CORRELATION      cross-correlation threshold                  (default = 0.1)
+  -s, --similarity SIMILARITY        similarity        threshold                  (default = 0.9)
+  -w, --window    WINDOW             window size in seconds                       (default =  30)
 
-  Flow data input/output (either --pcaps or --read required):
-    -p, --pcaps  PATHS...      path to pcap(ng) files to run through FlowPrint
-    -r, --read   PATHS...      read preprocessed data from given files
-    -o, --write  PATH          write preprocessed data to given file
-    -i, --split  FLOAT         fraction of data to select for testing (default= 0)
-    -a, --random FLOAT         random state to use for split          (default=42)
+  Flow data input/output:
+  -p, --pcaps     PCAPS [PCAPS ...]  pcap(ng) files to run through FlowPrint
+  -r, --read      READ [READ ...]    read  preprocessed data from given files
+  -o, --write     WRITE              write preprocessed data to   given file
+  -l, --split     SPLIT              fraction of data to select for testing
+  -a, --random    RANDOM             random state to use for split                (default =  42)
 
-  Train/test input (for --detection/--recognition):
-    -t, --train PATHS...       path to json files containing training fingerprints
-    -e, --test  PATHS...       path to json files containing testing fingerprints
+  Train/test input:
+  -t, --train     TRAIN [TRAIN ...]  path to json training fingerprints
+  -e, --test      TEST [TEST ...]    path to json testing  fingerprints
 
 Examples
 ^^^^^^^^
