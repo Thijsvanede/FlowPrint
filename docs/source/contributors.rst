@@ -12,6 +12,7 @@ Special Thanks
 ^^^^^^^^^^^^^^
 
 We want to give our special thanks for people reporting bugs and fixes.
+ - izmcm
  - MrChenA
  - skumailraza
 
