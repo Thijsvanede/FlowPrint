@@ -1,5 +1,5 @@
 networkx==2.5
-cryptography==3.2
+cryptography==3.3.2
 numpy==1.17.4
 pyshark==0.4.2.11
 matplotlib==3.3.2
