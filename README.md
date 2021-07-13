@@ -1,5 +1,5 @@
 # FlowPrint
-This repository contains the code for FlowPrint by the authors of the NDSS FlowPrint [1] paper [[PDF]](https://vm-thijs.ewi.utwente.nl/static/pcap_handler/papers/flowprint.pdf).
+This repository contains the code for FlowPrint by the authors of the NDSS FlowPrint [1] paper [[PDF]](https://dx.doi.org/10.14722/ndss.2020.24412).
 Please [cite](#References) FlowPrint when using it in academic publications.
 This `master` branch provides FlowPrint as an out of the box tool.
 For the original experiments from the paper, please checkout the `NDSS` branch.
