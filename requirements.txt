@@ -1,6 +1,6 @@
 networkx==2.5
 cryptography==3.3.2
-numpy==1.17.4
+numpy==1.22.0
 pyshark==0.4.2.11
 matplotlib==3.3.2
 argformat==0.0.3
